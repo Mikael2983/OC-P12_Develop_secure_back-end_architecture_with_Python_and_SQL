@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="events" class="section">
+    <h2>Détail de l'événements</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Titre</th>
+            <th>Date Début</th>
+            <th>Date fin</th>
+            <th>location</th>
+            <th>participants</th>
+        </tr>
+        <tr>
+            <td>{{ event.id }}</td>
+            <td>{{ event.title }}</td>
+            <td>{{ event.start_date }}</td>
+            <td>{{ event.end_date }}</td>
+            <td>{{ event.location }}</td>
+            <td>{{ event.participants }}</td>
+        </tr>
+
+    </table>
+    <p>Support en charge :  {{ event.support.full_name }}</p>
+    <p>Notes :  {{ event.notes }}</p>
+
+    <div id="clients" class="section">
+        <h3>Détail du client</h3>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>company name</th>
+            </tr>
+            <tr>
+                <td>{{ event.client.id }}</td>
+                <td>{{ event.client.full_name }}</td>
+                <td>{{ event.client.email }}</td>
+                <td>{{ event.client.phone }}</td>
+                <td>{{ event.client.company_name }}</td>
+            </tr>
+        </table>
+    </div>
+    <div id="contracts" class="section">
+        <h3>Détail du contrat</h3>
+        <table>
+            <tr><th>ID</th>
+                <th>Montant Total</th>
+                <th>Restant due</th>
+
+            </tr>
+            <tr>
+                <td>{{ event.contract.id }}</td>
+                <td>{{ event.contract.total_amount }}</td>
+                <td>{{ event.contract.amount_due }}</td>
+
+            </tr>
+        </table>
+        <p>Commercial en charge :  {{ event.contract.client.commercial.full_name }}</p>
+  </div>
+</div>
+{% endblock %}

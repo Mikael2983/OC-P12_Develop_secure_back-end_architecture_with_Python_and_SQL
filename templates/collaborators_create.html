@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="form" class="section">
+        <h1>Créer un collaborateur</h1>
+
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="/collaborators/create/">
+            <label for="full_name">Nom complet :</label><br>
+            <input type="text" id="full_name" name="full_name" required><br><br>
+
+            <label for="email">Email :</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <label for="password">Mot de passe :</label><br>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <label for="role">Rôle :</label><br>
+            <select id="role" name="role" required>
+                <option value="commercial">Commercial</option>
+                <option value="support">Support</option>
+                <option value="gestion">Gestion</option>
+            </select><br><br>
+
+            <button type="submit">Créer</button>
+        </form>
+    </div>
+{% endblock %}

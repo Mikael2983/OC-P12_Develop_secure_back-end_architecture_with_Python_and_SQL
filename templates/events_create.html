@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="form" class="section">
+        <h1>Créer un événement</h1>
+
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="/events/create/">
+            <label for="title">Titre :</label><br>
+            <input type="text" id="title" name="title" required><br><br>
+
+            <label for="start_date">Date de début :</label><br>
+            <input type="date" id="start_date" name="start_date" required><br><br>
+
+            <label for="end_date">Date de fin :</label><br>
+            <input type="date" id="end_date" name="end_date" required><br><br>
+
+            <label for="location">Lieu :</label><br>
+            <input type="text" id="location" name="location" required><br><br>
+
+            <label for="participants">Nombre de participants :</label><br>
+            <input type="text" id="participants" name="participants"><br><br>
+
+            <label for="notes">Notes :</label><br>
+            <input type="text" id="notes" name="notes"><br><br>
+
+            <button type="submit">Créer</button>
+        </form>
+    </div>
+
+{% endblock %}

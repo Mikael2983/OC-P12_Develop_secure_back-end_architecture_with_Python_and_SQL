@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="form" class="section">
+        <h1>Créer un contract</h1>
+
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+
+    amount_due
+
+    signed
+
+    client_id
+        <form method="POST" action="/contracts/create/">
+            <label for="total_amount">Montant total:</label><br>
+            <input type="text" id="total_amount" name="total_amount" required><br><br>
+
+            <label for="amount_due">Somme due :</label><br>
+            <input type="text" id="amount_due" name="amount_due" required><br><br>
+
+            <label for="signed">est_il signé ?:</label><br>
+            <select id="signed" name="signed" required>
+                <option value="False">NON</option>
+                <option value="True">OUI</option>
+            </select><br><br>
+
+
+            <button type="submit">Créer</button>
+        </form>
+    </div>
+{% endblock %}

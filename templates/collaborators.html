@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div id="collaborators" class="section">
+    <h2>Liste des collaborateurs</h2>
+
+    <table>
+        <tr><th>ID</th><th>Nom</th><th>Email</th><th>Service</th></tr>
+        {% for collaborator in collaborators %}
+
+        <tr>
+                <td><a href="/collaborators/{{ collaborator.id }}/">{{ collaborator.id }}</a></td>
+                <td>{{ collaborator.full_name }}</td>
+                <td>{{ collaborator.email }}</td>
+                <td>{{ collaborator.role }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <div id="option" class="section">
+    {% if user.role == "gestion" %}
+        <a href="/collaborators/create/">créer un collaborateur</a>
+    {% endif %}
+    </div>
+</div>
+{% endblock %}
