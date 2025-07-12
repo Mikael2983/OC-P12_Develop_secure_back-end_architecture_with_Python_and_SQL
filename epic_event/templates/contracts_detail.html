@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="contracts" class="section">
+    <h2>Détail du contrats</h2>
+    {% include 'table_contracts.html' contracts %}
+
+    <p>commercial en charge :  {{ contract.client.commercial.full_name }}</p>
+
+    <div id="events" class="section">
+        <h2>détail de l'événement lié</h2>
+        {% if contract.event %}
+            {% include 'table_events.html' events %}
+        <p>note :  {{ contract.event.notes }}</p>
+        {% else %}
+            {% if user_can(user, "create", "events") and contract.signed %}
+                <button type="button" onclick="window.location.href='/events/create'">Créer un événement</button>
+            {% else %}
+                <p>Aucun événement associé</p>
+            {% endif %}
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

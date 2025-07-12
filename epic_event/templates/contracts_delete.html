@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="form" class="section">
+        <h1>Supprimer un contrat</h1>
+
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+
+        <h2>Etes-vous sûr de supprimer le contrat N°{{contract.id}}</h2>
+        <form method="POST" action="/contracts/{{ contract.id }}/delete">
+            <button type="button" onclick="window.location.href='/contracts/{{ contract.id }}/'">Annuler</button>
+            <button type="submit">Valider</button>
+        </form>
+    </div>
+{% endblock %}

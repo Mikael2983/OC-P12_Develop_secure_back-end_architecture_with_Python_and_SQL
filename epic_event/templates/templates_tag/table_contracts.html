@@ -1,0 +1,102 @@
+<table>
+    <tr>
+        <th>
+            N° Contrat
+            {% if with_sorting %}
+            <a href="{{ sort_links['id'] }}">
+        {% if sort == 'id' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Client
+            {% if with_sorting %}
+            <a href="{{ sort_links['client'] }}">
+        {% if sort == 'client.company_name' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Budget Total
+            {% if with_sorting %}
+            <a href="{{ sort_links['total_amount'] }}">
+        {% if sort == 'total_amount' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Restant du
+            {% if with_sorting %}
+            <a href="{{ sort_links['amount_due'] }}">
+        {% if sort == 'amount_due' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Date de creation
+            {% if with_sorting %}
+            <a href="{{ sort_links['created_date'] }}">
+        {% if sort == 'created_date' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Signature
+            {% if with_sorting %}
+            <a href="{{ sort_links['signed'] }}">
+        {% if sort == 'signed' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Titre de l'événement
+            {% if with_sorting %}
+            <a href="{{ sort_links['event'] }}">
+        {% if sort == 'contract.event.title' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        {% if user_can(user, "update", "contracts") %}<th>Modifier</th>{% endif %}
+        {% if user_can(user, "delete", "contracts") %}<th>Supprimer</th>{% endif %}
+
+    </tr>
+    {% for contract in contracts %}
+        <tr>
+            <td>
+                {% if with_sorting %}
+                <a href="/contracts/{{ contract.id }}/">{{ contract.id }}</a>
+                {% else %}
+                {{ contract.id }}
+                {% endif %}
+            </td>
+            <td>{{ contract.client.company_name }}</td>
+            <td>{{ contract.total_amount }}</td>
+            <td>{{ contract.amount_due }}</td>
+            <td>{{ contract.created_date }}</td>
+            <td>{{ contract.signed }}</td>
+            <td>
+                {% if contract.event %}  {{ contract.event.title }}
+                {% else %}
+                    {% if user_can(user, "create", "events") and contract.signed %}
+                        <a href="/events/create?contract_id={{ contract.id }}">Créer un événement</a>
+                    {% else %}
+                        NC
+                    {% endif %}
+                {% endif %}
+            </td>
+            {% if contract.archived == False %}
+                {% if user_can(user, "update", "contracts") %}
+                    <td><a id="item_update" href="/contracts/{{ contract.id }}/update/">✏️</a></td>
+                {% endif %}
+
+                {% if user_can(user, "delete", "contracts") %}
+                    <td><a id="item_delete" href="/contracts/{{ contract.id }}/delete/">🗑️</a></td>
+                {% endif %}
+
+            {% else %}
+                <td> Archivé </td>
+                <td> Archivé </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+</table>

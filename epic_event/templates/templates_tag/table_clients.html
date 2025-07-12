@@ -1,0 +1,80 @@
+<table>
+    <tr>
+        <th>
+            Société
+            {% if with_sorting %}
+            <a href="{{ sort_links['company_name'] }}">
+        {% if sort == 'company_name' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Contact
+            {% if with_sorting %}
+            <a href="{{ sort_links['full_name'] }}">
+        {% if sort == 'full_name' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>
+            date de création
+            {% if with_sorting %}
+            <a href="{{ sort_links['created_date'] }}">
+        {% if sort == 'created_date' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Dernier contact
+            {% if with_sorting %}
+            <a href="{{ sort_links['last_contact'] }}">
+        {% if sort == 'last_contact' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+           {% endif %}
+        </th>
+        <th>
+            commercial
+            {% if with_sorting %}
+            <a href="{{ sort_links['commercial'] }}">
+        {% if sort == 'commercial.full_name' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        {% if user_can(user, "update", "clients") %}<th>Modifier</th>{% endif %}
+        {% if user_can(user, "delete", "clients") %}<th>Supprimer</th>{% endif %}
+    </tr>
+    {% for client in clients %}
+        <tr>
+            <td>{{client.company_name}}</td>
+            <td><a href="/clients/{{ client.id }}/">{{ client.full_name }}</a></td>
+            <td>{{ client.email }}</td>
+            <td>{{ client.phone }}</td>
+            <td>{{client.created_date}}</td>
+            <td>{{client.last_contact_date}}</td>
+            <td>{{client.commercial.full_name}}</td>
+            {% if client.archived == False %}
+                {% if user.role not in ["gestion", "support"] %}
+                <td>
+                {% if user_can(user, "update", "clients", client) %}
+                    <a id="item_update" href="/clients/{{ client.id }}/update/">✏️</a>
+                {% else %}
+                    <span style="filter: grayscale(100%);">✏️</span>
+                {% endif %}
+                </td>
+                <td>
+                {% if user_can(user, "delete", "clients", client) %}
+                    <a id="item_delete" href="/clients/{{ client.id }}/delete/">🗑️</a>
+                {% else %}
+                    <span style="filter: grayscale(100%);">🗑️</span>
+                {% endif %}
+                </td>
+                {% endif %}
+            {% else %}
+            <td> Archivé </td>
+            <td> Archivé </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+</table>

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="form" class="section">
+        <h1>Supprimer un événement</h1>
+
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+
+        <h2>Etes-vous sûr de supprimer {{event.title}}</h2>
+
+        <form method="POST" action="/events/{{ event.id }}/delete">
+            <button type="button" onclick="window.location.href='/events/{{ event.id }}/'">Annuler</button>
+            <button type="submit">Valider</button>
+        </form>
+    </div>
+{% endblock %}

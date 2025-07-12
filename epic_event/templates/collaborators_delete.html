@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="form" class="section">
+        <h1>Créer un collaborateur</h1>
+
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+
+        <h2>Etes-vous sûr de supprimer {{collaborator.full_name}}</h2>
+        <form method="POST" action="/collaborators/{{ collaborator.id }}/delete">
+            <button type="button" onclick="window.location.href='/collaborators/'">Annuler</button>
+            <button type="submit">Valider</button>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,6 @@
+<form method="post" action="/toggle_archive_display">
+    <label>
+        <input type="checkbox" name="show_archived" onchange="this.form.submit()" {% if show_archived %}checked{% endif %}>
+        Afficher les éléments archivés
+    </label>
+</form>

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="form" class="section">
+        <h1>supprimer un client</h1>
+
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+
+        <h2>Etes-vous sûr de supprimer {{client.company_name}}</h2>
+        <form method="POST" action="/clients/{{ client.id }}/delete">
+            <button type="button" onclick="window.location.href='/clients/'">Annuler</button>
+            <button type="submit">Valider</button>
+        </form>
+    </div>
+{% endblock %}

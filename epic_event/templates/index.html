@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epic Events</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to the Epic Events CRM portal</h1>
+    </div>
+    <div class="sidebar"> </div>
+    <div id="login" class="section">
+        <h1>Connexion</h1>
+        <form method="POST" action="/login">
+            <label for="full_name">Nom complet :</label><br>
+            <input id="full_name" type="text" name="full_name" required><br><br>
+            <label for="password">Mot de passe :</label><br>
+            <input id="password" type="password" name="password" required><br><br><br>
+            <button id="login_button" type="submit"> Se connecter</button>
+        </form>
+        <p class="error">{{ error }}</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="form" class="section">
+    {% if user.role == "gestion" %}
+    <h1>Assigner un collaborateur</h1>
+    {% else %}
+    <h1>Modifier l'événement</h1>
+    {% endif %}
+    {% if error %}
+    <p>{{ error }}</p>
+    {% endif %}
+
+    <form method="POST" action="/events/{{event.id}}/update/">
+        {% if user.role == "support" or user.role == "admin" %}
+            <label for="title">Titre : {{event.title}}</label><br>
+            <input type="text" id="title" name="title"><br><br>
+
+            <label for="start_date">Date de début :{{event.start_date}}</label><br>
+            <input type="date" id="start_date" name="start_date"><br><br>
+
+            <label for="end_date">Date de fin: {{event.end_date}}</label><br>
+            <input type="date" id="end_date" name="end_date"><br><br>
+
+            <label for="location">Lieu : {{event.location}} </label><br>
+            <input type="text" id="location" name="location"><br><br>
+
+            <label for="participants">Nombre de participants : {{event.participants}}</label><br>
+            <input type="text" id="participants" name="participants"><br><br>
+
+            <label for="notes">Notes :</label><br>
+            <input type="text" id="notes" name="notes"  placeholder={{event.notes}} ><br><br>
+        {% endif %}
+        {% if user.role == "gestion" or user.role == "admin" %}
+            <label for="support_id">Collaborateur:</label>
+            <select id="support_id" name="support_id">
+                {% for support in supports %}
+                    <option value={{support.id}}>{{support.full_name}}</option>
+                {% endfor %}
+            </select><br><br>
+
+        {% endif %}
+        <button type="button" onclick="window.location.href='/events/{{ event.id }}/'">Annuler</button>
+        <button type="submit">Valider</button>
+    </form>
+</div>
+
+{% endblock %}

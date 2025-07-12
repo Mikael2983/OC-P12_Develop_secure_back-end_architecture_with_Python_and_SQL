@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord</title>
+    <link rel="stylesheet" href="/static/styles.css">
+
+</head>
+<body>
+    <div class="header">
+        <h1>Bienvenue, {{ user.full_name }}</h1>
+        <button type="button" onclick="window.location.href='/collaborators/{{ user.id }}/password'">Modifier son mot de passe</button>
+        <button id="button_logout" type="button" onclick ="window.location.href='/logout'">Se déconnecter</button>
+    </div>
+
+    <div class="sidebar">
+        <a href="/collaborators/" class="nav-button">Collaborateurs</a>
+        <a href="/clients/" class="nav-button">Clients</a>
+        <a href="/contracts/" class="nav-button">Contrats</a>
+        <a href="/events/" class="nav-button">Événements</a>
+    </div>
+
+    {% block content %}
+<!--    insère ici la template fille nommée content -->
+    {% endblock %}
+
+</body>
+</html>

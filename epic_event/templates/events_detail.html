@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="events" class="section">
+    <h2>Détail de l'événement</h2>
+
+    {% include "table_events.html" events %}
+
+    <p>Notes :  {{ event.notes }}</p>
+
+    <div id="clients" class="section">
+        <h3>Détail du client</h3>
+        {% include "table_clients.html" clients %}
+    </div>
+
+    <div id="contracts" class="section">
+        <h3>Détail du contrat</h3>
+        {% include "table_contracts.html" contracts %}
+  </div>
+</div>
+{% endblock %}

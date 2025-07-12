@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="form" class="section">
+        <h1>Modifier le collaborateur</h1>
+
+        {% if error %}
+        <p>{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="/collaborators/{{collaborator.id}}/update/">
+
+            <label for="full_name">Nom complet :{{ collaborator.full_name }}</label><br>
+            <input type="text" id="full_name" name="full_name"><br><br>
+
+            <label for="email">Email : {{ collaborator.email }}</label><br>
+            <input type="email" id="email" name="email"><br><br>
+
+            <label for="role">Rôle :</label><br>
+            <select id="role" name="role" required>
+                <option value="commercial"{% if collaborator.role=="commercial" %} selected="selected" {% endif %} >Commercial</option>
+                <option value="support" {% if collaborator.role=="support" %} selected="selected" {% endif %} >Support</option>
+                <option value="gestion" {% if collaborator.role=="gestion" %} selected="selected" {% endif %} >Gestion</option>
+            </select><br><br>
+
+            <button type="button" onclick="window.location.href='/collaborators/{{ collaborator.id }}'">Annuler</button>
+            <button type="submit">Modifier</button>
+        </form>
+    </div>
+{% endblock %}

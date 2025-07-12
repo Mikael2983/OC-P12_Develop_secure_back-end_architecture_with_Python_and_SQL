@@ -1,0 +1,111 @@
+<table>
+    <tr>
+        <th>
+            Titre
+            {% if with_sorting %}
+            <a href="{{ sort_links['title'] }}">
+            {% if sort == 'title' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Client
+            {% if with_sorting %}
+            <a href="{{ sort_links['client'] }}">
+            {% if sort == 'contract.client.company_name' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Collaborateur
+            {% if with_sorting %}
+            <a href="{{ sort_links['support'] }}">
+            {% if sort == 'support.full_name' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Date Début
+            {% if with_sorting %}
+            <a href="{{ sort_links['start_date'] }}">
+            {% if sort == 'start_date' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Date Fin
+            {% if with_sorting %}
+            <a href="{{ sort_links['end_date'] }}">
+            {% if sort == 'end_date' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            Lieu
+            {% if with_sorting %}
+            <a href="{{ sort_links['location'] }}">
+            {% if sort == 'location' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        <th>
+            participants
+            {% if with_sorting %}
+            <a href="{{ sort_links['participants'] }}">
+            {% if sort == 'participants' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+            </a>
+            {% endif %}
+        </th>
+        {% if user_can(user, "update", "events") %}<th>Modifier</th>{% endif %}
+        {% if user_can(user, "delete", "events") %}<th>Supprimer</th>{% endif %}
+    </tr>
+    {% for event in events %}
+        <tr>
+            <td>
+                {% if with_sorting %}
+                    <a href="/events/{{ event.id }}/">{{ event.title }}</a>
+                {% else %}
+                    {{ event.title }}
+                {% endif %}
+            </td>
+            <td>{{ event.contract.client.company_name }}</td>
+            <td>{% if event.support %}
+                    {{ event.support.full_name }}
+                {% else %}
+                    {% if user.role == "gestion" or user.role == "admin" %}
+                        <a href="/events/{{ event.id }}/update/">Assigner un collaborateur</a>
+                    {% else %}
+                        NC
+                    {% endif %}
+                {% endif %}
+            </td>
+            <td>{{ event.start_date }}</td>
+            <td>{{ event.end_date }}</td>
+            <td>{{ event.location }}</td>
+            <td>{{ event.participants }}</td>
+            {% if event.archived == False %}
+                {% if user_can(user, "update", "events") %}
+                    <td>
+                    {% if user_can(user, "update", "events", event) %}
+                        <a id="item_update" href="/events/{{ event.id }}/update/">✏️</a>
+                    {% else %}
+                        <span style="filter: grayscale(100%);">✏️</span>
+                    {% endif %}
+                    </td>
+            {% endif %}
+            {% if user_can(user, "delete", "events") %}
+                    <td>
+                    {% if user_can(user, "delete", "events", event) %}
+                        <a id="item_delete" href="/events/{{ event.id }}/delete/">🗑️</a>
+                    {% else %}
+                        <span style="filter: grayscale(100%);">🗑️</span>
+                    {% endif %}
+                    </td>
+                {% endif %}
+            {% else %}
+                <td> Archivé </td>
+                <td> Archivé </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+</table>

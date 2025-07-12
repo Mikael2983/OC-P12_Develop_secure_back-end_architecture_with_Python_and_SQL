@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="form" class="section">
+        <h1>Créer un client</h1>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="/clients/create/">
+            <label for="company_name">Société :</label><br>
+            <input type="text" id="company_name" name="company_name" required><br><br>
+
+            <label for="full_name">Nom du contact :</label><br>
+            <input type="text" id="full_name" name="full_name" required><br><br>
+
+            <label for="email">Email :</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <label for="phone">Téléphone :</label><br>
+            <input type="text" id="phone" name="phone" required><br><br>
+
+            <label for="last_contact_date">Dernier Contact :</label><br>
+            <input type="date" id="last_contact_date" name="last_contact_date" required><br><br>
+
+            <button type="button" onclick="window.location.href='/clients/'">Annuler</button>
+            <button type="submit">Créer</button>
+        </form>
+    </div>
+{% endblock %}

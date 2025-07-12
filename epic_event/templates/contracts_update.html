@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="form" class="section">
+        <h1>Modifier le contract</h1>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="/contracts/{{contract.id}}/update/">
+
+            <label for="client_id">Client:</label>
+            <select id="client_id" name="client_id">
+                {% for client in clients %}
+                <option value={{client.id}} {% if contract.client.id == client.id %} selected="selected" {% endif %} >{{client.company_name}}</option>
+                {% endfor %}
+            </select><br><br>
+            <label for="total_amount">Montant total: {{ contract.total_amount }}</label><br>
+            <input type="text" id="total_amount" name="total_amount" ><br><br>
+
+            <label for="amount_due">Somme due : {{ contract.amount_due }}</label><br>
+            <input type="text" id="amount_due" name="amount_due"><br><br>
+
+            <label for="signed">Est_il signé ?:</label>
+            <select id="signed" name="signed" >
+                <option value=False {% if contract.signed == False %} selected="selected" {% endif %}>NON</option>
+                <option value=True {% if contract.signed == True %} selected="selected" {% endif %}>OUI</option>
+            </select><br><br>
+
+            <button type="button" onclick="window.location.href='/contracts/{{ contract.id }}/'">Annuler</button>
+            <button type="submit">Modifier</button>
+        </form>
+    </div>
+{% endblock %}

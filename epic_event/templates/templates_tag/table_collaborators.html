@@ -1,0 +1,58 @@
+<table>
+    <tr>
+        <th>
+            Nom
+            {% if with_sorting == True %}
+                <a href="{{ sort_links['full_name'] }}">
+                {% if sort == 'full_name' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+                </a>
+            {% endif %}
+        </th>
+        <th>
+            Email
+            {% if with_sorting == True %}
+                <a href="{{ sort_links['email'] }}">
+                {% if sort == 'email' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+                </a>
+            {% endif %}
+        </th>
+        <th>
+            Service
+            {% if with_sorting == True %}
+                <a href="{{ sort_links['role'] }}">
+                {% if sort == 'role' and order == 'asc' %}🔻{% else %}🔺{% endif %}
+                </a>
+            {% endif %}
+        </th>
+        {% if user_can(user, "update", "collaborators") %}
+        <th>Modifier</th>
+        <th>Supprimer</th>
+        {% endif %}
+    </tr>
+    {% for collaborator in collaborators %}
+    <tr>
+        <td>
+            {% if with_sorting %}
+            <a href="/collaborators/{{ collaborator.id }}/"> {{ collaborator.full_name }} </a>
+            {% else %}
+            {{ collaborator.full_name }}
+            {% endif %}
+        </td>
+        <td>{{ collaborator.email }}</td>
+        <td>{{ collaborator.role }}</td>
+        {% if collaborator.archived == False %}
+            {% if user_can(user, "update", "collaborators") %}
+            <td>
+                <a id="item_update"  href="/collaborators/{{ collaborator.id }}/update/">✏️</a>
+            </td>
+            <td>
+                <a id="item_delete" href="/collaborators/{{ collaborator.id }}/delete/">🗑️</a>
+            </td>
+            {% endif %}
+        {% else %}
+            <td> Archivé </td>
+            <td> Archivé </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
