@@ -10,7 +10,7 @@ def load_data_in_database(session: Session):
     collaborators = session.query(Collaborator).all()
     if not collaborators:
         collaborators = []
-        collaborator = Collaborator(full_name="admin user",
+        collaborator = Collaborator(full_name="Admin User",
                                     email="admin@epicevent.com",
                                     role="admin")
         collaborator.set_password("adminpass")
@@ -233,3 +233,12 @@ def load_test_data_in_database(session: Session):
         session.add(event)
         session.commit()
 
+
+def load_super_user(session):
+    admin = session.query(Collaborator).filter_by(
+        email="admin@example.com").first()
+    if not admin:
+        admin = Collaborator(full_name="Admin User", email="admin@example.com", role="admin")
+        admin.set_password("adminpass")
+        session.add(admin)
+    session.commit()
