@@ -5,19 +5,18 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
 from models.base import Base
 
-
 SESSION_CONTEXT = {}
 logger = logging.getLogger(__name__)
 
 
 class Database:
-    """Database handler using SQLAlchemy ORM.
-
-    Args:
-        db_url (str): SQLAlchemy-compatible database URL.
-    """
 
     def __init__(self, db_name: str = "epic_event.db"):
+        """Database handler using SQLAlchemy ORM.
+
+            Args:
+                db_name (str): SQLAlchemy-compatible database name.
+            """
         self.db_url = f"sqlite:///{db_name}"
         self.engine = create_engine(self.db_url, echo=False)
         self.Base = Base

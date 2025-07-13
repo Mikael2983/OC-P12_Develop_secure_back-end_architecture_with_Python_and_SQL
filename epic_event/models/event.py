@@ -48,11 +48,11 @@ class Event(Base, Entity):
     support = relationship("Collaborator", back_populates="events")
 
     @staticmethod
-    def _validate_title(title: str) -> None:
+    def _validate_title(title: Column[str]) -> None:
         """
         Validate that the event has a non-empty title.
         Args:
-           title (str): title of the event.
+           title (Column[str]): title of the event.
 
         Raises:
             ValueError: If title is missing or only whitespace.
@@ -84,12 +84,12 @@ class Event(Base, Entity):
             raise
 
     @staticmethod
-    def _validate_participants(number: int) -> None:
+    def _validate_participants(number: Column[int]) -> None:
         """
         Ensure that the number of participants is a non-negative integer.
 
         Args:
-            number (int): number of participants.
+            number (Column[int]): number of participants.
         Raises:
             ValueError: If participants is not a positive integer.
         """
@@ -103,7 +103,7 @@ class Event(Base, Entity):
             raise
 
     @staticmethod
-    def _validate_contract_id(db: Session, contract_id: int) -> None:
+    def _validate_contract_id(db: Session, contract_id: Column[int]) -> None:
         """
         Check that the contract exists and is signed.
 
@@ -130,7 +130,7 @@ class Event(Base, Entity):
             raise
 
     @staticmethod
-    def _validate_support_id(db: Session, support_id: int) -> None:
+    def _validate_support_id(db: Session, support_id: Column[int]) -> None:
         """
         Validate that the support collaborator exists and has the correct role.
 

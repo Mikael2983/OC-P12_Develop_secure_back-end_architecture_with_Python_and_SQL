@@ -37,7 +37,7 @@ class Contract(Base, Entity):
     event = relationship("Event", back_populates="contract", uselist=False)
 
     @staticmethod
-    def normalize_signed(raw_value: str) -> bool:
+    def normalize_signed(raw_value: Column[bool]) -> bool:
         """
         Convert string representation of a boolean to a Python boolean.
 
@@ -77,7 +77,7 @@ class Contract(Base, Entity):
             raise ValueError("Amount due cannot exceed total amount.")
 
     @staticmethod
-    def validate_client_existence(db: Session, client_id: int) -> None:
+    def validate_client_existence(db: Session, client_id: Column[int]) -> None:
         """
         Validate that the client ID exists in the database.
 

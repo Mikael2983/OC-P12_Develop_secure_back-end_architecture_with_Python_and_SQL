@@ -16,7 +16,7 @@ def test_safe_eval_invalid_expression():
 def test_split_template():
     renderer = TemplateRenderer()
     code = "Hello {{ name }} {% if condition %}Yes{% endif %}"
-    parts = renderer.split_template(code)
+    parts = renderer._split_template(code)
     assert parts == [
         "Hello ", "{{ name }}", "{% if condition %}", "Yes", "{% endif %}"
     ]

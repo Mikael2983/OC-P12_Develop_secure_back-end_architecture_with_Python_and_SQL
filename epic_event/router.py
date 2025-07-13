@@ -30,7 +30,31 @@ class MyHandler(BaseHTTPRequestHandler):
         return parsed.path, parse_qs(parsed.query)
 
     def dispatch_route(self, method: str):
+        """
+        Dispatch HTTP request to the appropriate handler based on method and URL path.
 
+        Args:
+            method (str): HTTP method of the request (e.g., "GET", "POST").
+
+        Returns:
+            Any: The result of the matched handler function (typically an HTTP response).
+
+        Behavior:
+            - Routes GET requests for:
+                - Home page
+                - Logout
+                - Entity list, detail, create form
+                - Entity actions: update, delete, password
+            - Routes POST requests for:
+                - Login
+                - Archive display toggle
+                - Entity creation, update, delete
+                - Collaborator password update
+                - Client contact marking
+
+            Returns a 403 error for direct GET access to /login.
+            Returns a 404 error if no matching route is found.
+        """
         path, query_params = self.parsed_url()
         segments = path.strip("/").split("/")
 
@@ -117,10 +141,6 @@ class MyHandler(BaseHTTPRequestHandler):
             for name, value in headers.items():
                 self.send_header(name, value)
         self.end_headers()
-
-    @staticmethod
-    def _view_accepts_headers(view_func):
-        return view_func.__code__.co_argcount >= 1
 
     def serve_static_file(self):
         file_path = os.path.join(os.getcwd(), self.path.lstrip("/"))
@@ -333,50 +353,3 @@ class MyHandler(BaseHTTPRequestHandler):
         self.send_response(303)
         self.send_header('Location', referer)
         self.end_headers()
-
-
-def reset_session(session: Session, headers: dict) -> None:
-    """
-    Réinitialise proprement la session SQLAlchemy et recharge le user courant si présent.
-
-    - Fait rollback
-    - Expulse tous les objets
-    - Recharge le user actif pour éviter les erreurs de session détachée dans les templates
-
-    Args:
-        session (Session): Session SQLAlchemy en cours.
-        headers (dict): Dictionnaire contenant le header HTTP (avec session_id).
-    """
-    user_id = None
-    cookie = headers.get("Cookie", "")
-    match = re.search(r"session_id=([a-f0-9\-]+)", cookie)
-    session_id = match.group(1)
-
-    if session_id:
-        user = SESSION_CONTEXT.get(session_id, {}).get("user")
-        if user:
-            try:
-                user_id = user.id
-            except Exception as e:
-                logger.exception(
-                    f"Impossible de récupérer user.id avant reset : {e}")
-
-    try:
-        if session.is_active:
-            session.rollback()
-    except Exception as e:
-        logger.exception(f"Rollback SQLAlchemy échoué : {e}")
-
-    try:
-        session.expunge_all()
-        session.flush()
-    except Exception as e:
-        logger.exception(f"Flush ou expunge échoué : {e}")
-
-    if session_id and user_id:
-        try:
-            fresh_user = session.get(Collaborator, user_id)
-            SESSION_CONTEXT[session_id]["user"] = fresh_user
-        except Exception as e:
-            logger.exception(
-                f"Erreur lors du rechargement de l'utilisateur : {e}")

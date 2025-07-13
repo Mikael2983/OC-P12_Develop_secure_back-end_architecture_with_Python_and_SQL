@@ -65,7 +65,8 @@ class TemplateRenderer:
         with open(path, "r", encoding="utf-8") as f:
             return f.read()
 
-    def split_template(self, code: str) -> List[str]:
+    @staticmethod
+    def _split_template(code: str) -> List[str]:
         """Splits a raw template string into parts (text, expressions, tags).
 
         Args:
@@ -91,21 +92,21 @@ class TemplateRenderer:
         if code is None:
             return f"<h1>Template '{template_name}' not found</h1>"
 
-        parsed = self.split_template(code)
-        blocks_context = self.extract_blocks(parsed)
+        parsed = self._split_template(code)
+        blocks_context = self._extract_blocks(parsed)
 
         if "mother_template" in blocks_context:
             base = blocks_context.pop("mother_template")
             base_code = self.read_template(base)
             if base_code is None:
                 return f"<h1>Mother template '{base}' not found</h1>"
-            parsed = self.split_template(base_code)
-            parsed = self.replace_blocks(parsed, blocks_context)
+            parsed = self._split_template(base_code)
+            parsed = self._replace_blocks(parsed, blocks_context)
 
-        return ''.join(self.render_blocks(parsed, context))
+        return ''.join(self._render_blocks(parsed, context))
 
-    def render_blocks(self, parts: List[TemplatePart], context: Context) -> \
-    List[str]:
+    def _render_blocks(self, parts: List[TemplatePart], context: Context) -> \
+            List[str]:
         """Renders the list of template parts into final output.
 
         Args:
@@ -177,7 +178,7 @@ class TemplateRenderer:
             i += 1
 
         block = true_block if safe_eval(condition, context) else false_block
-        return self.render_blocks(block, context), i
+        return self._render_blocks(block, context), i
 
     def _handle_for(self, condition: str, parts: List[TemplatePart],
                     context: Context, i: int) -> Tuple[List[str], int]:
@@ -224,11 +225,11 @@ class TemplateRenderer:
         for item in iterable:
             new_ctx = context.copy()
             new_ctx[var_name] = item
-            result.extend(self.render_blocks(loop_block, new_ctx))
+            result.extend(self._render_blocks(loop_block, new_ctx))
         return result, i
 
-    def _handle_include(self, tag_parts: List[str], context: Context) -> List[
-        str]:
+    def _handle_include(self, tag_parts: List[str], context: Context) -> \
+            List[str]:
         """Handles {% include 'template.html' var %} directives.
 
         Args:
@@ -268,9 +269,10 @@ class TemplateRenderer:
         with open(tag_path, "r", encoding="utf-8") as f:
             tag_code = f.read()
 
-        return self.render_blocks(self.split_template(tag_code), sub_context)
+        return self._render_blocks(self._split_template(tag_code), sub_context)
 
-    def extract_blocks(self, parsed: List[str]) -> Context:
+    @staticmethod
+    def _extract_blocks(parsed: List[str]) -> Context:
         """Extracts {% block %} definitions and base inheritance.
 
         Args:
@@ -299,7 +301,8 @@ class TemplateRenderer:
                 block_content.append(part)
         return context
 
-    def replace_blocks(self, parsed: List[str], context: Context) -> List[str]:
+    @staticmethod
+    def _replace_blocks(parsed: List[str], context: Context) -> List[str]:
         """Replaces block placeholders in a base template with child overrides.
 
         Args:
@@ -327,7 +330,16 @@ class TemplateRenderer:
         return result
 
 
-def make_sort_url(field, current_sort, current_order):
+def make_sort_url(field: str, current_sort: str, current_order: str) -> str:
+    """
+    assembles the fields and the order to form the query string
+    Args:
+        field: Orm field use to sort
+        current_sort: Orm currently used sorting field
+        current_order : sort order currently used
+    returns :
+        a string use to make query string in links
+    """
     if field == current_sort and current_order == "asc":
         order = "desc"
     else:
@@ -339,6 +351,18 @@ def make_sort_url(field, current_sort, current_order):
 
 
 def make_query_string(query_params):
+    """
+    Generates a query string dictionary for multi-field sorting.
+
+    Args:
+        query_params (Optional[Dict[str, List[str]]]):
+            HTTP GET query parameters for sorting
+    Returns:
+        Dict[str, str]:
+            A dictionary where each key is a field name on which one can sort,
+            and the associated value is a query string formed to sort
+            according to this field.
+    """
     sort_field = query_params.get("sort", ["id"])[0]
     order = query_params.get("order", ["asc"])[0]
 

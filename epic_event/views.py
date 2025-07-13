@@ -16,24 +16,41 @@ renderer = TemplateRenderer()
 
 
 def get_model(entity_name):
+    """
+        Retrieve the ORM model class associated with the given entity name.
+
+        Args:
+            entity_name (str): Name of the entity.
+
+        Returns:
+            Type: ORM model class corresponding to the entity name.
+        """
     model = eval(entities.get(entity_name))
     return model
 
 
 def home() -> str:
     """Render the home page."""
-    return renderer.render_template("index.html", {"error": ""})
+    return renderer.render_template(
+        "index.html",
+        {"error": ""})
 
 
 def login(db: Session, data: Dict[str, list[str]]) -> dict:
-    """Authenticate user with provided login form data.
+    """
+    Authenticate a user based on submitted login credentials.
 
     Args:
-        db (Session): SQLAlchemy session.
-        data: Form data including full_name and password.
+        db (Session): SQLAlchemy session instance.
+        data (Dict[str, list[str]]): Dictionary containing form fields:
+            - 'full_name': List with the full name as first element.
+            - 'password': List with the password as first element.
 
     Returns:
-        HTML or session ID string if login succeeds.
+        dict: A dictionary containing:
+            - {'success': True, 'session_id': str} if authentication succeeds.
+            - {'success': False, 'html': str} if authentication fails,
+              with rendered login page including an error message.
     """
     full_name = data.get("full_name", [""])[0]
     password = data.get("password", [""])[0]
@@ -78,7 +95,19 @@ def logout(*args, **kwargs) -> str:
 @login_required
 @has_permission("password")
 def collaborator_password_view(pk, **kwargs) -> str:
-    """Render form for updating collaborator password."""
+    """
+    Render the password update form for a specific collaborator.
+
+    Args:
+        pk (int): Primary key of the collaborator.
+
+    Kwargs:
+        user: Current authenticated collaborator.
+        session: SQLAlchemy session instance (optional, for consistency).
+
+    Returns:
+        str: Rendered HTML string of the password change form.
+    """
     return renderer.render_template("password_change.html",
                                     {
                                         "user": kwargs.get("user", {}),
@@ -90,15 +119,23 @@ def collaborator_password_view(pk, **kwargs) -> str:
 @login_required
 @has_permission("password")
 def user_password_post_view(pk, data: Dict[str, str], **kwargs) -> str:
-    """Update user's password based on provided input.
+    """
+    Update the authenticated user's password after validating input.
 
     Args:
-        pk: user's primary key
-        data: Dictionary with password fields.
+        pk (int): Primary key of the user whose password is being updated.
+        data (Dict[str, str]): Dictionary containing the following keys:
+            - 'current_password': User's current password.
+            - 'new_password': Desired new password.
+            - 'Confirm_password': Confirmation of the new password.
+
+    Kwargs:
+        session: SQLAlchemy session instance.
+        user: Current authenticated collaborator.
 
     Returns:
-        Rendered page showing success or error messages.
-
+        str: Rendered HTML string of the password change page,
+             showing success or error messages.
     """
     user = kwargs.get("user")
     session = kwargs.get("session")
@@ -147,15 +184,22 @@ def user_password_post_view(pk, data: Dict[str, str], **kwargs) -> str:
 @login_required
 def entity_list_view(query_params: Dict[str, list[str]],
                      **kwargs) -> str:
-    """Render a list view for the specified entity.
+    """
+    Render a list view for the specified entity with sorting and archive filtering.
 
     Args:
-        query_params: HTTP GET query parameters for sorting.
+        query_params (Dict[str, list[str]]): HTTP GET query parameters for sorting
+            (e.g., 'sort' and 'order').
+
+    Kwargs:
+        session: SQLAlchemy session instance.
+        entity_name (str): Name of the entity type to list.
+        session_id: Contextual session identifier for archive filtering.
+        user: Current authenticated collaborator.
 
     Returns:
-        Rendered HTML page of the entity list.
+        str: Rendered HTML string of the entity list page or error page.
     """
-    headers = kwargs.get("headers")
     session_id = kwargs.get("session_id")
     entity_name = kwargs.get("entity_name", "")
     user = kwargs.get("user")
@@ -207,16 +251,20 @@ def entity_list_view(query_params: Dict[str, list[str]],
 
 @login_required
 def entity_detail_view(pk: int, **kwargs) -> str:
-    """Render detail view of a single entity item.
+    """
+    Render the detail page of a specific entity instance.
 
     Args:
-        pk: Primary key of the item.
-    kwargs:
-        session: SQLAlchemy Session.
-        entity_name: Type of entity.
+        pk (int): Primary key of the entity instance to retrieve.
+
+    Kwargs:
+        session: SQLAlchemy session instance.
+        entity_name (str): Name of the entity to display.
+        session_id: Contextual session identifier for archive filtering.
+        user: Current authenticated collaborator.
 
     Returns:
-        Rendered detail page.
+        str: Rendered HTML string of the entity detail page or error page.
     """
     session_id = kwargs.get("session_id")
 
@@ -280,15 +328,31 @@ def entity_create_view(query_params: [Dict[str, list[str]]] = None,
                        **kwargs) -> str:
     """Render a creation form for the specified entity.
 
+    This view handles the rendering of a creation form for a given entity.
+    It processes query parameters and context-specific data such as user
+    session, entity type, and optional HTTP headers.
+
     Args:
-        query_params: query parameters.
+        query_params (Optional[List[Dict[str, List[str]]]]):
+            A dictionary of query parameters, typically from the URL.
+            For example: {"contract_id": ["123"]}.
 
     Kwargs:
-        session: SQLAlchemy session.
-        entity_name: Type of entity.
-        headers
+        session (Session):
+            An SQLAlchemy session instance for database interactions.
+
+        entity_name (str):
+            The name of the entity for which the form is rendered.
+            Example: "contracts" or "events".
+
+        headers (Optional[Dict[str, str]]):
+            A dictionary of HTTP headers passed from the request context.
+
+        user (Any):
+            The currently authenticated collaborator.
+
     Returns:
-        Rendered creation form template.
+        str: The rendered HTML template as a string.
     """
     user = kwargs.get("user")
     entity_name = kwargs.get("entity_name")
@@ -311,15 +375,21 @@ def entity_create_view(query_params: [Dict[str, list[str]]] = None,
 
 @login_required
 @has_permission("create")
-def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[
-    str, bool]:
-    """Handle submission of entity creation form.
+def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[str, bool]:
+    """Handle submission of an entity creation form.
 
     Args:
-        data: Form data.
+        data (Dict[str, Any]): Form data.
+
+    Kwargs:
+        session: SQLAlchemy session.
+        entity_name (str): Name of the entity to create.
+        user: Current authenticated collaborator.
+        headers (Optional[Dict[str, str]]):
+            A dictionary of HTTP headers passed from the request context.
 
     Returns:
-        True if successful, or rendered template with error.
+        bool or str: True if successful, otherwise the rendered error template.
     """
     session = kwargs.get("session")
     user = kwargs.get("user")
@@ -383,7 +453,25 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[
 @login_required
 @has_permission("update")
 def entity_update_view(pk: int, **kwargs) -> str:
-    """Render form to update entity identified by pk."""
+    """
+    Render an update form for the entity identified by pk.
+
+    Args:
+        pk (int): Primary key of the entity to update.
+
+    Kwargs:
+        session: SQLAlchemy session.
+        entity_name (str): Name of the entity to update.
+        session_id: Current session context ID.
+        user: Current authenticated collaborator.
+        headers (Optional[Dict[str, str]]): A dictionary of HTTP headers passed
+         from the request context.
+
+    Returns:
+        str: Rendered update form template.
+
+    """
+
     session_id = kwargs.get("session_id")
     user = kwargs.get("user")
     entity_name = kwargs.get("entity_name")
@@ -436,8 +524,22 @@ def entity_update_view(pk: int, **kwargs) -> str:
 def entity_update_post_view(pk: int,
                             data: Dict[str, Any],
                             **kwargs) -> Union[str, bool]:
-    """Handle update form submission for entity."""
-    headers = kwargs.get("headers")
+    """Handle update form submission for an entity.
+
+    Args:
+        pk (int): Primary key of the entity to update.
+        data (Dict[str, Any]): Updated form data.
+
+    Kwargs:
+        session: SQLAlchemy session.
+        entity_name (str): Name of the entity.
+        session_id: Current session context ID.
+        user: Current authenticated collaborator.
+
+    Returns:
+        bool or str: True if successful, otherwise the rendered error template.
+    """
+
     session_id = kwargs.get("session_id")
     user = kwargs.get("user")
     entity_name = kwargs.get("entity_name")
@@ -493,7 +595,20 @@ def entity_update_post_view(pk: int,
 @login_required
 @has_permission("update")
 def entity_delete_view(pk, **kwargs) -> bool:
-    """Soft-delete an entity by setting archived flag."""
+    """
+    Soft-delete an entity by setting its archived flag.
+
+    Args:
+        pk (int): Primary key of the entity to delete.
+
+    Kwargs:
+        session: SQLAlchemy session.
+        entity_name (str): Name of the entity.
+        session_id: Current session context ID.
+
+    Returns:
+        bool: True if deletion is successful, False otherwise.
+    """
 
     session_id = kwargs.get("session_id")
     entity_name = kwargs.get("entity_name")
@@ -526,16 +641,21 @@ def entity_delete_view(pk, **kwargs) -> bool:
 @has_permission("delete")
 def entity_delete_post_view(pk: int, **kwargs) -> \
         Union[bool, str]:
-    """Process the deletion of an entity (soft delete).
+    """
+    Process the soft deletion of an entity and return result.
 
     Args:
-        db (Session): SQLAlchemy session.
-        user: Authenticated user.
-        entity_name: Type of entity.
-        pk: Primary key.
+        pk (int): Primary key of the entity to delete.
+
+    Kwargs:
+        session: SQLAlchemy session instance.
+        user: Current authenticated collaborator.
+        entity_name (str): Name of the entity to delete.
 
     Returns:
-        True if deleted, or form with error.
+        Union[bool, str]:
+            - True if the deletion was successful.
+            - Rendered template string with error message otherwise.
     """
     user = kwargs.get("user")
     entity_name = kwargs.get("entity_name")
@@ -583,17 +703,22 @@ def entity_delete_post_view(pk: int, **kwargs) -> \
 @login_required
 @has_permission("update")
 def client_contact_view(client_id: int, **kwargs) -> Union[bool, str]:
-    """Mark a client as contacted (updates last_contact_date).
+    """
+    Mark a client as contacted by updating its `last_contact_date`.
 
     Args:
-        db (Session): SQLAlchemy session.
-        user: Authenticated user.
-        entity_name: Should be "clients".
-        client_id: ID of the client.
+        client_id (int): ID of the client to update.
+
+    Kwargs:
+        session: SQLAlchemy session instance.
+        user: Current authenticated collaborator.
 
     Returns:
-        True if success, or detail page with error.
+        Union[bool, str]:
+            - True if the update is successful.
+            - Rendered template string with error message otherwise.
     """
+
     user = kwargs.get("user")
     session = kwargs.get("session")
 

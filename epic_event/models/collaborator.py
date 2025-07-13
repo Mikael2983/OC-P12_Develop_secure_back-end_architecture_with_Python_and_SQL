@@ -46,7 +46,13 @@ class Collaborator(Base, Entity):
 
     def _validate_full_name(self, db: Session) -> None:
         """
-        Validates that the full name is not empty and is unique.
+        Validates that the full name is not empty, is alphabetical and unique.
+        Args:
+            db (Session): SQLAlchemy session instance.
+
+        Raises:
+            ValueError: If the fullname is neither unique nor a valid string
+                        format.
         """
         try:
             if not self.full_name or not self.full_name.strip():
@@ -71,11 +77,18 @@ class Collaborator(Base, Entity):
             logger.exception(e)
             raise
 
-    def _validate_email(self, db: Session, email) -> None:
+    def _validate_email(self, db: Session, email: Column[str]) -> None:
         """
-        Validates the format and uniqueness of the email address.
-        args:
-            email: mail adress
+        Validate the type and the format of an email.
+
+        Args:
+            db (Session): SQLAlchemy session instance.
+            email (str): The email address to validate.
+
+        Raises:
+            ValueError: If the email is not a string or its format is invalid
+                or already in use.
+
         """
         try:
             pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
@@ -102,11 +115,17 @@ class Collaborator(Base, Entity):
         Validates that the assigned role is among the allowed services.
         args:
             role: the collaborator's role
+
+        raises: ValueError: if the role is not in the list of possible roles
         """
         try:
             if role not in SERVICES and role != "admin":
-                logger.exception(f"Invalid role '{role}'. Must be one of: {SERVICES}.")
-                raise ValueError(f"Invalid role '{role}'. Must be one of: {SERVICES}.")
+                logger.exception(
+                    f"Invalid role '{role}'. Must be one of: {SERVICES}."
+                )
+                raise ValueError(
+                    f"Invalid role '{role}'. Must be one of: {SERVICES}."
+                )
         except Exception as e:
             logger.exception(e)
             raise

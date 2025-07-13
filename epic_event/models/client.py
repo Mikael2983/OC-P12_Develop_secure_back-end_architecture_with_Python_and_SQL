@@ -79,7 +79,16 @@ class Client(Base, Entity):
 
     @staticmethod
     def _validate_email(email: str):
-        """Validates and sanitizes the email format."""
+        """
+        Validate the type and the format of an email.
+
+        Args:
+            email (str): The email address to validate.
+
+        Raises:
+            ValueError: If the email is not a string or its format is invalid.
+
+        """
         if not isinstance(email, str):
             logger.exception("L'email doit être une chaîne de caractères.")
             raise ValueError("L'email doit être une chaîne de caractères.")
@@ -91,7 +100,16 @@ class Client(Base, Entity):
 
     @staticmethod
     def _validate_phone(phone: str):
-        """Validates French phone numbers in international or national format."""
+        """
+        Validates a French phone number in national or international format.
+
+        Args:
+            phone (str): The phone number to validate.
+
+        Raises:
+            ValueError: If the phone number is not a string or if it does not
+                        match the expected French phone number formats.
+        """
         if not isinstance(phone, str):
             logger.exception("Le numéro de téléphone doit être une chaîne de caractères.")
             raise ValueError(
@@ -105,14 +123,34 @@ class Client(Base, Entity):
 
     @staticmethod
     def _validate_company_name(company: str) -> str:
-        """Validates the company name string."""
+        """Validates the company name string.
+        Args:
+            company (str): The company name to validate.
+
+        Raises:
+            ValueError: If the company name is not a string or if it's empty'.
+        """
         if not isinstance(company, str) or not company.strip():
             logger.exception("Le nom de l'entreprise est invalide ou vide.")
             raise ValueError("Le nom de l'entreprise est invalide ou vide.")
 
     @staticmethod
     def _validate_date(value: Union[date, str]) -> date:
-        """Validates and converts a string or date into a date object."""
+        """
+        Validates and converts a value into a `date` object.
+
+        Args:
+            value (Union[date, str]): The date to validate, either as a `date`
+                            object or as a string in the format "DD-MM-YYYY".
+
+        Returns:
+            date: The validated `date` object.
+
+        Raises:
+            ValueError: If the input is neither a `date` nor a valid string in
+                        the "DD-MM-YYYY" format.
+        """
+
         if isinstance(value, date):
             return value
         if isinstance(value, str):
