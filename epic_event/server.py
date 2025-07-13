@@ -3,7 +3,7 @@ import logging.config
 from http.server import HTTPServer
 
 from epic_event.models import Database, load_data_in_database
-from epic_event.models.utils import load_test_data_in_database
+from epic_event.models.utils import load_test_data_in_database, load_super_user
 from epic_event.router import MyHandler
 from epic_event.settings import DATABASES, PORT, SENTRY_DSN, setup_logging
 
@@ -38,8 +38,10 @@ session = database.get_session()
 
 if operating_mode == "test":
     load_test_data_in_database(session)
-else:
+elif operating_mode == "demo":
     load_data_in_database(session)
+else:
+    load_super_user(session)
 
 MyHandler.session = session
 MyHandler.database = database
