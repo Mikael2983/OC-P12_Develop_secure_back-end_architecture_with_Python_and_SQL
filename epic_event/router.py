@@ -5,13 +5,13 @@ import re
 import urllib.parse
 from urllib.parse import urlparse, parse_qs
 
-from sqlalchemy.orm import joinedload, Session
-from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.orm import Session
+
 import logging
 
-from epic_event.models import Collaborator, SESSION_CONTEXT, Database
-from .settings import entities
-from .views import (routes, entity_detail_view, login,
+from models import Collaborator, SESSION_CONTEXT
+from settings import entities
+from views import (routes, entity_detail_view, login,
                    entity_create_view, entity_create_post_view,
                    entity_list_view, entity_delete_view,
                    entity_delete_post_view, client_contact_view, logout,

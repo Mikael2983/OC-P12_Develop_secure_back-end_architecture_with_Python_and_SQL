@@ -6,8 +6,8 @@ from sqlalchemy import Column, Integer, String, Boolean, LargeBinary
 from sqlalchemy.orm import relationship, Session
 import logging
 
-from epic_event.models.base import Base
-from epic_event.models import Entity
+from models.base import Base
+from models import Entity
 
 SERVICES = ["gestion", "commercial", "support"]
 logger = logging.getLogger(__name__)

@@ -1,7 +1,5 @@
 import logging
 import logging.config
-from sentry_sdk.integrations.logging import LoggingIntegration
-
 
 entities = {
     "collaborators": "Collaborator",
@@ -10,12 +8,17 @@ entities = {
     "events": "Event"
 }
 
-DATABASES = {"main": "epic_events.db",
-             "test": "test_database.db"}
+DATABASES = {
+    "main": "epic_events.db",
+    "demo": "demo_epic_event.db",
+    "test": "test_database.db"
+}
 
-PORT = {"main": 8000,
-        "test": 5000}
-
+PORT = {
+    "main": 8000,
+    "demo": 8000,
+    "test": 8000
+}
 
 SENTRY_DSN = "https://422a046974326b3d65c42157b707bdc2@o4509643092721664.ingest.de.sentry.io/4509643095146576"
 

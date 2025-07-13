@@ -13,7 +13,6 @@ import re
 from typing import Any, Dict, List, Optional, Tuple, Union
 from collections.abc import Iterable
 
-import sentry_sdk
 from sentry_sdk import capture_exception
 
 TemplatePart = Union[str, Any]

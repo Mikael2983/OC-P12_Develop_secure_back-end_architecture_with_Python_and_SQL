@@ -7,8 +7,8 @@ from typing import Optional, Union
 from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship, Session
 
-from epic_event.models.base import Base
-from epic_event.models import Entity
+from models.base import Base
+from models import Entity
 
 logger = logging.getLogger(__name__)
 

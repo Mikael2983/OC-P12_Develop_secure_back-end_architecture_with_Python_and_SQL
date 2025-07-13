@@ -2,10 +2,10 @@ import argparse
 import logging.config
 from http.server import HTTPServer
 
-from epic_event.models import Database, load_data_in_database
-from epic_event.models.utils import load_test_data_in_database, load_super_user
-from epic_event.router import MyHandler
-from epic_event.settings import DATABASES, PORT, SENTRY_DSN, setup_logging
+from models import Database, load_data_in_database
+from models.utils import load_test_data_in_database, load_super_user
+from router import MyHandler
+from settings import DATABASES, PORT, SENTRY_DSN, setup_logging
 
 import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
@@ -26,7 +26,7 @@ logger.info("Serveur lancé avec journalisation.")
 parser = argparse.ArgumentParser(
     description="Lancer le serveur en mode normal ou test.")
 parser.add_argument("mode", nargs="?", default="main",
-                    choices=["main", "test"])
+                    choices=["main", "test", "demo"])
 
 args = parser.parse_args()
 operating_mode = args.mode

@@ -2,10 +2,10 @@ import re
 from functools import wraps
 from typing import TypeAlias, Union
 
-from epic_event.models import SESSION_CONTEXT, Contract, Collaborator, Client, \
+from models import SESSION_CONTEXT, Contract, Collaborator, Client, \
     Event
-from .render_engine import TemplateRenderer
-from .settings import entities
+from render_engine import TemplateRenderer
+from settings import entities
 
 Entity: TypeAlias = Union[Collaborator, Client, Contract, Event]
 

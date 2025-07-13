@@ -5,10 +5,10 @@ import logging
 from sqlalchemy import Date, Column, Integer, String, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship, Session
 
-from epic_event.models.base import Base
-from epic_event.models import Contract
-from epic_event.models import Collaborator
-from epic_event.models import Entity
+from models.base import Base
+from models import Contract
+from models import Collaborator
+from models import Entity
 
 logger = logging.getLogger(__name__)
 

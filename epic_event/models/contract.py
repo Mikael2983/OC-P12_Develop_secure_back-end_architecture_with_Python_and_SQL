@@ -3,8 +3,8 @@ from sqlalchemy import Date, Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, Session
 import logging
 
-from epic_event.models.base import Base
-from epic_event.models import Client, Entity
+from models.base import Base
+from models import Client, Entity
 
 logger = logging.getLogger(__name__)
 

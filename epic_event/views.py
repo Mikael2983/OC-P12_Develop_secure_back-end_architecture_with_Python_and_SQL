@@ -5,11 +5,11 @@ from typing import Any, Dict, Union
 import logging
 from sqlalchemy.orm import Session
 
-from epic_event.models import Collaborator, Client, Contract, Event, Database
-from epic_event.models import SESSION_CONTEXT
-from epic_event.permission import login_required, has_permission, user_can
-from .render_engine import TemplateRenderer, make_query_string
-from .settings import entities
+from models import Collaborator, Client, Contract, Event, Database
+from models import SESSION_CONTEXT
+from permission import login_required, has_permission, user_can
+from render_engine import TemplateRenderer, make_query_string
+from settings import entities
 
 logger = logging.getLogger(__name__)
 renderer = TemplateRenderer()
