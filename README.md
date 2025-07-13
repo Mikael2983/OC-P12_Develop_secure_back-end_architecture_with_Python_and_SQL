@@ -1,35 +1,42 @@
-# EpicEvent 🎉
+# 🎉 EpicEvent 🎉
+**EpicEvent** is a web management application for an event planning company.  
+It allows you to:  
+- Create collaborators divided into three departments (management, sales, and event support)  
+- Create clients  
+- Create service contracts  
+- And finally, create event follow-up records.
 
-**EpicEvent** est une application web de gestion de contrats clients pour une société d'organisation d'événements.  
-Elle permet aux commerciaux de créer, modifier et valider des contrats, tout en assurant une architecture sécurisée et extensible côté back-end.
-
----
-
-## 🚀 Fonctionnalités principales
-
-- Gestion des événements liés aux contrats des clients
-- Interface de validation et mise à jour avec contrôle d'accès
-- ORM personnalisé basé sur SQLAlchemy sans framework
-- Gestion des sessions, permissions et rollback de base de données
-- Tests automatisés avec `pytest` et `selenium`
+It uses the user's role to define the actions they are allowed to perform in the application.
 
 ---
 
-## 🛠️ Technologies utilisées
+## 🚀 Main Features
+
+- Management of events linked to client contracts  
+- User authentication system via cookies  
+- Validation and update interface with access control  
+- Custom ORM based on SQLAlchemy without a framework  
+- Management of sessions, permissions, and database rollback  
+- Automated tests with `pytest` and `selenium`
+
+---
+
+## 🛠️ Technologies Used
 
 - **Python 3.12+**
 - **SQLAlchemy** (ORM)
-- **SQLite** 
-- **Selenium** (tests UI)
-- **Pytest** (tests unitaires et d’intégration)
-- **Logging intégré** (avec `logger` par module sentry)
+- **SQLite**
+- **Selenium** (UI tests)
+- **Pytest** (unit, functional and integration tests)
+- **Integrated Logging** (with `logger` per module and Sentry)
 
 ---
 
-## 🧱 Architecture
 
-epic_event/
-    ├── app/                    # Code principal de l'application
+## 🧱 Architecture
+```bash
+Repository/
+    ├── epic_event/                    # Code principal de l'application
     │   ├── models/             # ORM SQLAlchemy
     │   ├── static/             # Fichiers statiques (CSS, JS, images)
     │   ├── templates/          # Templates HTML  
@@ -38,11 +45,13 @@ epic_event/
     │   ├── router.py           # Routage HTTP personnalisé
     │   ├── server.py           # Serveur HTTP personnalisé
     │   ├── settings.py         # Paramètres de configuration (port, DB, constantes)
-    │   └── views.py            # Logique métier et validation
-    ├── tests/                  # Tests Selenium & Pytest
+    │   ├── views.py            # Logique métier et validation
+    │   └── tests/              # Tests Selenium & Pytest
     ├── README.md
     └── requirements.txt
+```
 
+---
 ## Setup
 ### Prérequis
 Python must be installed beforehand.
@@ -70,12 +79,12 @@ First, open the command prompt in the folder where you want to drop the clone.
 clone this repository to your local machine. 
 
 ```bash
-git clone https://github.com/Mikael2983/OC_P9_Develop_web_application_using_Django.git
+git clone https://github.com/Mikael2983/OC-P12_Develop_secure_back-end_architecture_with_Python_and_SQL.git
 ```
-Then navigate inside the folder OC_P9_Develop_web_application_using_Django
+Then navigate inside the folder epic_event
 
 ```bash
-cd OC_P9_Develop_web_application_using_Django
+cd OC-P12_Develop_secure_back-end_architecture_with_Python_and_SQL
 ```
 
 ### 2. Create Virtual Environment
@@ -83,17 +92,16 @@ cd OC_P9_Develop_web_application_using_Django
 To create virtual environment, install virtualenv package of python and activate it by following command on terminal:
 
 ```bash
-python -m venv env
+python -m venv .venv
 ```
 for windows:
 ```bash
-env\Scripts\activate
+.venv\Scripts\activate
 ```
 for Unix/MacOS :
 ```bash
-source env/bin/acivate
+source .venv/bin/acivate
 ```
-
 
 ### 3. Requirements
 
@@ -102,33 +110,44 @@ To install required python packages, copy requirements.txt file and then run fol
 ```bash
 pip install -r requirements.txt
 ```
-### 4. initalize database
+### 4. Initialize Database
 
-To initialize the database, start by applying migrations. 
+EpicEvent already contains the necessary data for tests or demos.
 
-```bash
-python manage.py migrate
-```
-To properly view application functionality load data from dump_140325.json file 
-
-```bash
-python manage.py loaddata dump_140325.json
-```
+Depending on the server launch command, the corresponding data will be loaded.
 
 ### 5. Start Server
 
-On the terminal enter following command to start the server:
+To view the data used for Pytest and Selenium tests, 
+
+On the terminal enter following command to start the server::
+```bash
+python server.py test
+```
+
+To discover the application's features, enter following command to start the server:
+```bash
+python server.py demo
+```
+
+For your own usage, enter following command to start the server:
 
 ```bash
-python manage.py runserver
+python server.py
 ```
-To log in to a SUPERUSER account,
-
-Fill in the ID: mikael and password: Invit1234
-All test database accounts use the same password
-
 ### 6. Start the Webapp
 
 To start the webapp on localhost, enter following URL in the web browser:
 
 http://127.0.0.1:8000/
+
+
+### 7. Connexion
+
+To log in to a SUPERUSER account,
+    with test database, 
+Fill in the name: mikael and password: Invit1234
+All test database accounts use the same password
+
+
+
