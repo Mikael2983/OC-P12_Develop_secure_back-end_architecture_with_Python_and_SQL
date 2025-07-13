@@ -81,7 +81,7 @@ clone this repository to your local machine.
 ```bash
 git clone https://github.com/Mikael2983/OC-P12_Develop_secure_back-end_architecture_with_Python_and_SQL.git
 ```
-Then navigate inside the folder epic_event
+Then navigate inside the created folder
 
 ```bash
 cd OC-P12_Develop_secure_back-end_architecture_with_Python_and_SQL
@@ -118,6 +118,11 @@ Depending on the server launch command, the corresponding data will be loaded.
 
 ### 5. Start Server
 
+Then navigate inside the folder epic_event
+
+```bash
+cd epic_event
+```
 To view the data used for Pytest and Selenium tests, 
 
 On the terminal enter following command to start the server::
@@ -160,6 +165,11 @@ To log in to a SUPERUSER account,
 
     e.g: Alice Martin use alicepass as password
 
+### 8. Tests
 
+all the tests as well as the server intended for them are already configured,
+all you need is to enter the pytest command on the terminal
 
-
+```bash
+pytest
+```
