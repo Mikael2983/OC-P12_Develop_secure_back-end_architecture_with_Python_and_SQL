@@ -145,9 +145,21 @@ http://127.0.0.1:8000/
 ### 7. Connexion
 
 To log in to a SUPERUSER account,
-    with test database, 
-Fill in the name: mikael and password: Invit1234
-All test database accounts use the same password
+- with test database:
+
+    Fill in the name: Admin and password: mypassword
+
+    All test database accounts use the same password
+
+
+- with others databases:
+    
+    Fill in the name: Admin User and password: adminpass.
+
+    All demo database accounts use the password first name+pass.
+
+    e.g: Alice Martin use alicepass as password
+
 
 
 
