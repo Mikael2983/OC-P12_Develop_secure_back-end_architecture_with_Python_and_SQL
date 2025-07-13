@@ -1,5 +1,5 @@
 import pytest
-from epic_event.models import Collaborator, Client
+from models import Collaborator, Client
 
 
 def test_order_by_fields_functional(seed_data_collaborator, db_session):

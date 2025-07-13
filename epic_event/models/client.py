@@ -7,7 +7,7 @@ from typing import Optional, Union
 from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship, Session
 
-from models.base import Base
+from .base import Base
 from models import Entity
 
 logger = logging.getLogger(__name__)

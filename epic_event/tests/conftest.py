@@ -7,10 +7,10 @@ import time
 import pytest
 from selenium import webdriver
 
-from epic_event.models import Database, Client, Collaborator, Contract, Event
-from epic_event.models.base import Base
-from epic_event.models.utils import load_test_data_in_database
-from epic_event.router import MyHandler
+from models import Database, Client, Collaborator, Contract, Event
+from models.base import Base
+from models.utils import load_test_data_in_database
+from router import MyHandler
 
 DB_FILENAME = "test_database.db"
 

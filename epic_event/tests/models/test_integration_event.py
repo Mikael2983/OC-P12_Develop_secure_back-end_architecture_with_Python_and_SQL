@@ -1,5 +1,5 @@
 import pytest
-from epic_event.models import Event, Contract
+from models import Event, Contract
 
 
 def test_event_contract_relationship(seed_data_event, db_session):

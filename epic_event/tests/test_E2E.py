@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
-from epic_event.models import Collaborator, Contract
+from models import Collaborator, Contract
 
 login_dict = {
         "admin": {"full_name": "Admin", "password": "mypassword"},

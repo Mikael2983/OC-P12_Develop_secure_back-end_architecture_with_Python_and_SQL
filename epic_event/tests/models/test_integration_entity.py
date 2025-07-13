@@ -1,5 +1,5 @@
 import pytest
-from epic_event.models import Client
+from models import Client
 
 
 def test_entity_resolve_simple_field(seed_data_client):

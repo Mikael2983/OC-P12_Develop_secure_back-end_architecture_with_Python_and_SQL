@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
-from models.base import Base
+from .base import Base
 
 SESSION_CONTEXT = {}
 logger = logging.getLogger(__name__)

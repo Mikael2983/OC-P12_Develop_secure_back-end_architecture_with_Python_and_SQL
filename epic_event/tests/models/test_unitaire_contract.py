@@ -1,7 +1,7 @@
 from datetime import date
 import pytest
 
-from epic_event.models import Contract
+from models import Contract
 
 
 def test_contract_save_and_validation(db_session, seed_data_client):

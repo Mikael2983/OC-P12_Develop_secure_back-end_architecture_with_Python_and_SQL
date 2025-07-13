@@ -1,6 +1,6 @@
 import pytest
 from datetime import date, timedelta
-from epic_event.models import Contract, Client
+from models import Contract, Client
 
 
 def test_validate_all_success(

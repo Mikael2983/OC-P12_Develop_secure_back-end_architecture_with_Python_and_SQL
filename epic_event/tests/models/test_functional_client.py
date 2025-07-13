@@ -1,6 +1,6 @@
 import pytest
 from datetime import date
-from epic_event.models import Client
+from models import Client
 
 def test_validate_all_success(db_session, seed_data_client):
     client = seed_data_client

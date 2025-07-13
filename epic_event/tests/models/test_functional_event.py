@@ -1,6 +1,6 @@
 import pytest
 from datetime import date, timedelta
-from epic_event.models import Event
+from models import Event
 
 
 def test_validate_all_success(seed_data_event, db_session):
