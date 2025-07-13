@@ -123,7 +123,7 @@ Then navigate inside the folder epic_event
 ```bash
 cd epic_event
 ```
-To view the data used for Pytest and Selenium tests, 
+To see the data used for Pytest and Selenium tests, 
 
 On the terminal enter following command to start the server::
 ```bash
@@ -167,8 +167,9 @@ To log in to a SUPERUSER account,
 
 ### 8. Tests
 
-all the tests as well as the server intended for them are already configured,
-all you need is to enter the pytest command on the terminal
+all the tests as well as the server intended for them are already configured
+
+all you need is to enter the pytest command on the terminal.
 
 ```bash
 pytest
