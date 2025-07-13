@@ -9,23 +9,54 @@ body {
       "sidebar section";
     height: 100vh;
 }
-
-.header {
+.header-grid {
     grid-area: header;
-    background-color: #2c3e50;
+    display: grid;
+    grid-template-columns: 200px 2fr 2fr;
+    grid-template-rows: 1fr 1fr 30px;
     color: white;
     text-align: end;
+    height: 100px;
+    padding: 20px;
+    background-color: #2c3e50;
+    gap: 10px;
+
 }
 
-.header h1 {
+/* Logo : colonne 1, lignes 1-2 */
+.logo {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+    height: 80px;
+    align-self: center;
+    justify-self: center;
+}
+
+/* Texte : colonnes 2-3, lignes 1-2 */
+.header-title {
+    grid-column: 2 / 4;
+    grid-row: 1 / 3;
+    align-self: center;
+    justify-self: flex-start;
     margin: 5px;
     padding-top : 10px;
-    text-align: center;
+    padding-left: 50px;
 }
 
-.header button {
-    padding-top: 8px;
-    margin: 10px;
+/* Boutons : colonne 3, ligne 3 */
+.header-buttons {
+    grid-column: 3 / 4;
+    grid-row: 3 / 4;
+    justify-self: end;
+    align-self: end;
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+}
+
+.header-buttons button {
+    padding: 8px 12px;
+    cursor: pointer;
 }
 
 button:hover {
