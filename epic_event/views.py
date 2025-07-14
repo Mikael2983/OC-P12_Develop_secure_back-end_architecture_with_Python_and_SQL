@@ -414,9 +414,7 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[str, bool]:
             instance.set_password(data["password"])
 
         elif entity_name == "contracts":
-            print(data["signed"], type(data["signed"]))
             data["signed"] = Contract.normalize_signed(data["signed"])
-            print(data["signed"], type(data["signed"]))
             data["created_date"] = datetime.today()
             instance = model(**data)
 

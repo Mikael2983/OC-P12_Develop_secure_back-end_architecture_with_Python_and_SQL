@@ -31,7 +31,7 @@ def load_data_in_database(session: Session):
         collaborator = Collaborator(full_name="Chloé Dubois",
                                     email="chloe@epicevent.com",
                                     role="commercial")
-        collaborator.set_password("clhoepass")
+        collaborator.set_password("chloepass")
         collaborators.append(collaborator)
 
         collaborator = Collaborator(full_name="David Morel",
