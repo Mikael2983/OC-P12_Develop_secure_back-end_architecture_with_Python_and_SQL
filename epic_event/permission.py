@@ -144,7 +144,20 @@ def has_permission(action):
                     return view_func(*args, **kwargs)
 
             else:
-
+                if entity_name == "events":
+                    data = args[0] if args and isinstance(args[0], dict) else None
+                    if data:
+                        contract_id = int(data["contract_id"][0])
+                        with session.no_autoflush:
+                            contract = Contract.filter_by_fields(session, id=contract_id)[0]
+                            if contract.client.commercial != user:
+                                return _unauthorized(
+                                    user,
+                                    action,
+                                    entity_name,
+                                    "Vous ne pouvez créer que les événements de vos clients" )
+                    else:
+                        return False
                 if can_access_entity:
                     return view_func(*args, **kwargs)
 

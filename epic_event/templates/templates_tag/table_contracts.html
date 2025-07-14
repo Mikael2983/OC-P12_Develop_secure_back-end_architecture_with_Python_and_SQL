@@ -77,7 +77,7 @@
             <td>
                 {% if contract.event %}  {{ contract.event.title }}
                 {% else %}
-                    {% if user_can(user, "create", "events") and contract.signed %}
+                    {% if contract.signed and contract.client.commercial == user %}
                         <a href="/events/create?contract_id={{ contract.id }}">Créer un événement</a>
                     {% else %}
                         NC
