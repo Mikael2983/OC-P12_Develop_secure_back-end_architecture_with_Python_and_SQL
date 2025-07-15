@@ -11,7 +11,7 @@
         <img class="logo" src="/static/images/logoepicevent.png" alt="logo d'EpicEvent">
         <h1 class="header-title">Bienvenue, {{ user.full_name }}</h1>
         <div class="header-buttons">
-            <button type="button" onclick="window.location.href='/collaborators/{{ user.id }}/password'">Modifier son mot de passe</button>
+            <button id="button_password" type="button" onclick="window.location.href='/collaborators/{{ user.id }}/password'">Modifier son mot de passe</button>
             <button id="button_logout" type="button" onclick ="window.location.href='/logout'">Se déconnecter</button>
         </div>
     </div>

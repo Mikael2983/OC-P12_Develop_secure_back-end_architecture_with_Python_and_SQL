@@ -3,7 +3,7 @@
         <th>
             Nom
             {% if with_sorting == True %}
-                <a href="{{ sort_links['full_name'] }}">
+                <a id="sort_full_name" href="{{ sort_links['full_name'] }}">
                 {% if sort == 'full_name' and order == 'asc' %}🔻{% else %}🔺{% endif %}
                 </a>
             {% endif %}
@@ -11,7 +11,7 @@
         <th>
             Email
             {% if with_sorting == True %}
-                <a href="{{ sort_links['email'] }}">
+                <a id="sort_email" href="{{ sort_links['email'] }}">
                 {% if sort == 'email' and order == 'asc' %}🔻{% else %}🔺{% endif %}
                 </a>
             {% endif %}
@@ -19,7 +19,7 @@
         <th>
             Service
             {% if with_sorting == True %}
-                <a href="{{ sort_links['role'] }}">
+                <a id="sort_role" href="{{ sort_links['role'] }}">
                 {% if sort == 'role' and order == 'asc' %}🔻{% else %}🔺{% endif %}
                 </a>
             {% endif %}

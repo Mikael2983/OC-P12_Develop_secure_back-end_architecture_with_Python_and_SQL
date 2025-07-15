@@ -1,6 +1,10 @@
 import argparse
 import logging.config
+import os
+import subprocess
+import sys
 from http.server import HTTPServer
+from pathlib import Path
 
 from models import Database, load_data_in_database
 from models.utils import load_test_data_in_database, load_super_user
@@ -10,14 +14,9 @@ from settings import DATABASES, PORT, SENTRY_DSN, setup_logging
 import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
 
-sentry_logging = LoggingIntegration(
-    level=logging.INFO,
-    event_level=logging.ERROR
-)
-sentry_sdk.init(
-    dsn=SENTRY_DSN,
-    integrations=[sentry_logging]
-)
+sentry_logging = LoggingIntegration(level=logging.INFO,
+                                    event_level=logging.ERROR)
+sentry_sdk.init(dsn=SENTRY_DSN, integrations=[sentry_logging])
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -30,6 +29,11 @@ parser.add_argument("mode", nargs="?", default="main",
 
 args = parser.parse_args()
 operating_mode = args.mode
+
+if operating_mode == "demo":
+    path = Path(DATABASES[operating_mode])
+    if path.exists():
+        os.remove(path)
 
 database = Database(DATABASES[operating_mode])
 database.initialize_database()
@@ -50,5 +54,46 @@ if __name__ == "__main__":
     port = PORT[operating_mode]
     server_address = ("", port)
     httpd = HTTPServer(server_address, MyHandler)
-    print(f"Serveur actif sur http://localhost:{port}")
-    httpd.serve_forever()
+
+    if operating_mode == "demo":
+
+        print("Choisissez le mode de démarrage :")
+        print("1. Manuel (ouvrir le serveur seulement)")
+        print("2. Automatique (ouvrir le serveur et lancer la démo)")
+        choice = input("Entrez 1 ou 2 : ").strip()
+
+        if choice == "1":
+            print(
+                f"Serveur actif en mode manuel sur http://localhost:{port}")
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                pass
+            finally:
+                httpd.server_close()
+
+        elif choice == "2":
+            print("Démarrage automatique : serveur + démo Selenium")
+            selenium_process = subprocess.Popen(
+                [sys.executable, "demo_selenium.py"])
+            print(f"Serveur actif sur http://localhost:{port}")
+
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                pass
+            finally:
+                httpd.server_close()
+                selenium_process.terminate()
+                os.remove(path)
+        else:
+            print("Choix invalide. Arrêt.")
+
+    else:
+        print(f"Serveur actif sur http://localhost:{port}")
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            httpd.server_close()
