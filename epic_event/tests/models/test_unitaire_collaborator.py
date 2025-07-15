@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch
-from models import Collaborator
+
+from epic_event.models import Collaborator
 
 
 def test_validate_full_name_ok(db_session):

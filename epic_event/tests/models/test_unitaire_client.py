@@ -1,7 +1,7 @@
 from datetime import date, datetime
 import pytest
 
-from models import Client
+from epic_event.models import Client
 
 
 def test_validate_all_success(seed_data_collaborator, db_session):

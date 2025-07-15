@@ -1,7 +1,8 @@
 import io
 import pytest
 from unittest.mock import Mock
-from router import MyHandler
+
+from epic_event.router import MyHandler
 
 
 def fake_socket():

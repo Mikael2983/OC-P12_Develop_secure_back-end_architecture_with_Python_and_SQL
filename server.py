@@ -1,18 +1,19 @@
 import argparse
+from http.server import HTTPServer
 import logging.config
 import os
+from pathlib import Path
 import subprocess
 import sys
-from http.server import HTTPServer
-from pathlib import Path
-
-from models import Database, load_data_in_database
-from models.utils import load_test_data_in_database, load_super_user
-from router import MyHandler
-from settings import DATABASES, PORT, SENTRY_DSN, setup_logging
 
 import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
+
+from epic_event.models import Database, load_data_in_database
+from epic_event.models.utils import load_test_data_in_database, load_super_user
+from epic_event.router import MyHandler
+from epic_event.settings import DATABASES, PORT, SENTRY_DSN, setup_logging
+
 
 sentry_logging = LoggingIntegration(level=logging.INFO,
                                     event_level=logging.ERROR)

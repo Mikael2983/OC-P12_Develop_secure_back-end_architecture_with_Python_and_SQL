@@ -7,11 +7,10 @@ Supported features:
 - {% include 'file.html' var %} for partial inclusion.
 - {% extends 'base.html' %} and {% block name %}...{% endblock %} for inheritance.
 """
-
+from collections.abc import Iterable
 import os
 import re
 from typing import Any, Dict, List, Optional, Tuple, Union
-from collections.abc import Iterable
 
 from sentry_sdk import capture_exception
 
@@ -39,8 +38,8 @@ def safe_eval(expr: str, context: Context) -> Any:
 class TemplateRenderer:
     """Template rendering engine using custom tag syntax."""
 
-    def __init__(self, template_dir: str = "templates",
-                 tag_dir: str = "templates/templates_tag"):
+    def __init__(self, template_dir: str = "epic_event/templates",
+                 tag_dir: str = f"epic_event/templates/templates_tag"):
         """Initializes the renderer with template and tag directories.
 
         Args:

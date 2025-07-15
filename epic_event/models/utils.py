@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from sqlalchemy.orm import Session
 
-from models import Client, Collaborator, Contract, Event
+from epic_event.models import Client, Collaborator, Contract, Event
 
 
 def load_data_in_database(session: Session):

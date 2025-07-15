@@ -1,5 +1,5 @@
 import pytest
-from models import Client
+from epic_event.models import Client
 
 
 

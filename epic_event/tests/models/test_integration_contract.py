@@ -1,5 +1,5 @@
 import pytest
-from models import Contract
+from epic_event.models import Contract
 
 
 def test_contract_client_relationship(seed_data_contract, seed_data_client):

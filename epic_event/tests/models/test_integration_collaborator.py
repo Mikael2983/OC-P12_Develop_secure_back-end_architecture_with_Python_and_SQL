@@ -1,5 +1,5 @@
 import pytest
-from models import Collaborator, Event
+from epic_event.models import Collaborator, Event
 
 
 def test_collaborator_password_and_role(seed_data_collaborator):

@@ -1,7 +1,7 @@
-import pytest
 from datetime import date, timedelta
+import pytest
 
-from models import Event
+from epic_event.models import Event
 
 
 def test_validate_title_empty_raises(db_session, seed_data_event):

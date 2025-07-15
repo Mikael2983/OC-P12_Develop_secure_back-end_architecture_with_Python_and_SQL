@@ -5,13 +5,11 @@ import re
 import urllib.parse
 from urllib.parse import urlparse, parse_qs
 
-from sqlalchemy.orm import Session
-
 import logging
 
-from models import Collaborator, SESSION_CONTEXT
-from settings import entities
-from views import (routes, entity_detail_view, login,
+from epic_event.models import SESSION_CONTEXT
+from epic_event.settings import entities
+from epic_event.views import (routes, entity_detail_view, login,
                    entity_create_view, entity_create_post_view,
                    entity_list_view, entity_delete_view,
                    entity_delete_post_view, client_contact_view, logout,
@@ -143,7 +141,12 @@ class MyHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def serve_static_file(self):
-        file_path = os.path.join(os.getcwd(), self.path.lstrip("/"))
+        static_dir = os.path.join(os.path.dirname(__file__), "static")
+        print(static_dir)
+        relative_path = self.path[
+                        len("/static/"):]
+        file_path = os.path.join(static_dir, relative_path)
+        print(file_path)
         if os.path.isfile(file_path):
             content_type, _ = mimetypes.guess_type(file_path)
             content_type = content_type or "application/octet-stream"

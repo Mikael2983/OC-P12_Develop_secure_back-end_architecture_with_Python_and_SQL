@@ -1,12 +1,12 @@
-import time
 from datetime import datetime
-
 import pytest
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
-from models import Collaborator, Contract
+from epic_event.models import Collaborator, Contract
 
 login_dict = {
         "admin": {"full_name": "Admin", "password": "mypassword"},
@@ -130,7 +130,7 @@ def test_entity_create_get_view(driver):
     driver.get("http://localhost:5000/clients/create")
     time.sleep(2)
     assert "Créer un client" in driver.page_source
-    driver.get("http://localhost:5000/events/create")
+    driver.get("http://localhost:5000/events/create?contract_id=3")
     time.sleep(2)
     assert "Créer un événement" in driver.page_source
     logout(driver)
@@ -142,7 +142,7 @@ def test_entity_create_view_gestion_forbidden_access(driver):
     driver.get("http://localhost:5000/clients/create")
     time.sleep(2)
     assert "accès refusé" in driver.page_source.lower()
-    driver.get("http://localhost:5000/events/create")
+    driver.get("http://localhost:5000/events/create?contract_id=3")
     time.sleep(2)
     assert "accès refusé" in driver.page_source.lower()
     logout(driver)
@@ -172,7 +172,7 @@ def test_entity_create_view_support_forbidden_access(driver):
     driver.get("http://localhost:5000/contracts/create")
     time.sleep(2)
     assert "accès refusé" in driver.page_source.lower()
-    driver.get("http://localhost:5000/events/create")
+    driver.get("http://localhost:5000/events/create?contract_id=3")
     time.sleep(2)
     assert "accès refusé" in driver.page_source.lower()
     logout(driver)

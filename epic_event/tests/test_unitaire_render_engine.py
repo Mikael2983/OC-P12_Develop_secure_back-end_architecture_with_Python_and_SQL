@@ -1,5 +1,5 @@
 import pytest
-from render_engine import safe_eval, TemplateRenderer
+from epic_event.render_engine import safe_eval, TemplateRenderer
 
 
 def test_safe_eval_valid_expression():

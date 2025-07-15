@@ -1,9 +1,9 @@
 import logging
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session
 
-from .base import Base
+from epic_event.models.base import Base
 
 SESSION_CONTEXT = {}
 logger = logging.getLogger(__name__)

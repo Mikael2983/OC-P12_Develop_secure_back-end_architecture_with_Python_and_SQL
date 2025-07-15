@@ -1,10 +1,10 @@
-from .database import Database, SESSION_CONTEXT
-from .entity import Entity
-from .client import Client
-from .collaborator import Collaborator
-from .contract import Contract
-from .event import Event
-from .utils import load_data_in_database
+from epic_event.models.database import Database, SESSION_CONTEXT
+from epic_event.models.entity import Entity
+from epic_event.models.client import Client
+from epic_event.models.collaborator import Collaborator
+from epic_event.models.contract import Contract
+from epic_event.models.event import Event
+from epic_event.models.utils import load_data_in_database
 
 __all__ = ["Database",
            "SESSION_CONTEXT",

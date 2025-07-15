@@ -1,5 +1,6 @@
 import pytest
-from models import Client
+
+from epic_event.models import Client
 
 
 def test_client_has_commercial(seed_data_client, db_session):
