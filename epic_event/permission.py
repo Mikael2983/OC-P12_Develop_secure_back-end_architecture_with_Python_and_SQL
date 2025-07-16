@@ -144,7 +144,7 @@ def has_permission(action):
                     return view_func(*args, **kwargs)
 
             else:
-                if entity_name == "events":
+                if entity_name == "events" and user.role != "admin":
                     data = args[0] if args and isinstance(args[0], dict) else None
                     if data:
                         contract_id = int(data["contract_id"][0])
