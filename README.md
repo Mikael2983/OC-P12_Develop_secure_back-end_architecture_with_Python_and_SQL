@@ -40,15 +40,16 @@ Repository/
     │   ├── models/             # ORM SQLAlchemy
     │   ├── static/             # Fichiers statiques (CSS, JS, images)
     │   ├── templates/          # Templates HTML  
-    │   ├── render.engine.py    # Moteur de rendu HTML 
+    │   ├── tests/              # Tests Selenium & Pytest
     │   ├── permission.py       # Gestion des permissions et des rôles
+    │   ├── render.engine.py    # Moteur de rendu HTML 
     │   ├── router.py           # Routage HTTP personnalisé
-    │   ├── server.py           # Serveur HTTP personnalisé
     │   ├── settings.py         # Paramètres de configuration (port, DB, constantes)
-    │   ├── views.py            # Logique métier et validation
-    │   └── tests/              # Tests Selenium & Pytest
+    │   └── views.py            # Logique métier et validation
+    ├── server.py           # Serveur HTTP personnalisé
     ├── README.md
-    └── requirements.txt
+    ├── requirements.txt
+    └── Schémas_BDD_Epic_Event.pdf
 ```
 
 ---
@@ -118,11 +119,6 @@ Depending on the server launch command, the corresponding data will be loaded.
 
 ### 5. Start Server
 
-Then navigate inside the folder epic_event
-
-```bash
-cd epic_event
-```
 To see the data used for Pytest and Selenium tests, 
 
 On the terminal enter following command to start the server::
