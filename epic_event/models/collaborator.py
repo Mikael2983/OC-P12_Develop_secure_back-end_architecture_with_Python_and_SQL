@@ -1,10 +1,11 @@
 """Collaborator ORM model with validation, error handling, and relationships."""
 import re
 import bcrypt
+import logging
 
 from sqlalchemy import Column, Integer, String, Boolean, LargeBinary
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import relationship, Session
-import logging
 
 from epic_event.models.base import Base
 from epic_event.models import Entity
@@ -54,16 +55,18 @@ class Collaborator(Base, Entity):
             ValueError: If the fullname is neither unique nor a valid string
                         format.
         """
-        try:
-            if not self.full_name or not self.full_name.strip():
-                logger.exception("Full name must not be empty.")
-                raise ValueError("Full name must not be empty.")
+        if not self.full_name or not self.full_name.strip():
+            raise ValueError("Full name must not be empty.")
 
-            if not re.fullmatch(
-                    r"[A-Za-zÀ-ÖØ-öø-ÿ\- ]+",
-                    self.full_name):
-                logger.exception("Full name must be alphabetical.")
-                raise ValueError("Full name must be alphabetical.")
+        # Autorise les lettres, accents, tirets, apostrophes et espaces
+        pattern = r"[A-Za-zÀ-ÖØ-öø-ÿ' \-]+"
+        if not re.fullmatch(pattern, self.full_name):
+            error = ("Full name must contain only letters, spaces, hyphens or "
+                     "apostrophes.")
+            logger.exception(error)
+            raise ValueError(error)
+
+        try:
             with db.no_autoflush:
                 existing = db.query(Collaborator).filter(
                     Collaborator.full_name == self.full_name,
@@ -71,10 +74,12 @@ class Collaborator(Base, Entity):
                 ).first()
 
                 if existing:
-                    logger.exception("This full name is already in use.")
-                    raise ValueError("This full name is already in use.")
-        except Exception as e:
-            logger.exception(e)
+                    error = "This full name is already in use."
+                    logger.exception(error)
+                    raise ValueError(error)
+        except SQLAlchemyError as e:
+            error = f"Database error during full name validation: {e}."
+            logger.exception(error)
             raise
 
     def _validate_email(self, db: Session, email: Column[str]) -> None:
@@ -88,25 +93,29 @@ class Collaborator(Base, Entity):
         Raises:
             ValueError: If the email is not a string or its format is invalid
                 or already in use.
-
+            SQLAlchemyError : If a database error occurs during the query.
         """
-        try:
-            pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-            if not re.match(pattern, email or ""):
-                logger.exception("Invalid email address format.")
-                raise ValueError("Invalid email address format.")
 
+        pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        if not re.match(pattern, email or ""):
+            error = "Invalid email address format."
+            logger.exception(error)
+            raise ValueError(error)
+
+        try:
             with db.no_autoflush:
                 existing_email = db.query(Collaborator).filter(
                     Collaborator.email == self.email,
                     Collaborator.id != getattr(self, "id", None)
                 ).first()
             if existing_email:
-                logger.exception("This email address is already in use.")
-                raise ValueError("This email address is already in use.")
+                error = "This email address is already in use."
+                logger.exception(error)
+                raise ValueError(error)
 
-        except Exception as e:
-            logger.exception(e)
+        except SQLAlchemyError as e:
+            logger.exception(
+                f"Database error during email validation: {e}")
             raise
 
     @staticmethod
@@ -118,17 +127,11 @@ class Collaborator(Base, Entity):
 
         raises: ValueError: if the role is not in the list of possible roles
         """
-        try:
-            if role not in SERVICES and role != "admin":
-                logger.exception(
-                    f"Invalid role '{role}'. Must be one of: {SERVICES}."
-                )
-                raise ValueError(
-                    f"Invalid role '{role}'. Must be one of: {SERVICES}."
-                )
-        except Exception as e:
-            logger.exception(e)
-            raise
+
+        if role not in SERVICES and role != "admin":
+            error = f"Invalid role '{role}'. Must be one of: {SERVICES}."
+            logger.exception(error)
+            raise ValueError(error)
 
     def validate_all(self, db: Session) -> None:
         """
@@ -144,23 +147,45 @@ class Collaborator(Base, Entity):
 
         Args:
             raw_password (str): The plain-text password.
+
+        Raises:
+            TypeError: If the password is not a string.
+            ValueError: If the password is too long for bcrypt.
         """
-        try:
-            salt = bcrypt.gensalt()
-            self.password = bcrypt.hashpw(raw_password.encode("utf-8"), salt)
-        except Exception as e:
-            logger.exception(e)
-            raise
+
+        salt = bcrypt.gensalt()
+        if not isinstance(raw_password, str):
+            error = "Password must be a string."
+            logger.exception(error)
+            raise TypeError(error)
+        if len(raw_password) > 72:
+            error = "Password exceeds bcrypt maximum length of 72 characters."
+            logger.exception(error)
+            raise ValueError(error)
+
+        self.password = bcrypt.hashpw(raw_password.encode("utf-8"), salt)
 
     def check_password(self, raw_password: str) -> bool:
         """
         Verifies the given raw password against the stored hash.
 
+        Args:
+            raw_password (str): The plain-text password to verify.
+
         Returns:
-            bool: True if match, False otherwise.
+            bool: True if the password matches, False otherwise.
+
+        Raises:
+            TypeError: If the password is not a string.
         """
+
+        if not isinstance(raw_password, str):
+            raise TypeError("Password must be a string.")
+
         try:
-            return bcrypt.checkpw(raw_password.encode("utf-8"), self.password)
-        except Exception as e:
-            logger.exception(e)
+            return bcrypt.checkpw(raw_password.encode("utf-8"),
+                                  self.password.encode("utf-8"))
+
+        except (ValueError, bcrypt.error) as e:
+            logger.exception("Password verification failed: %s", e)
             return False

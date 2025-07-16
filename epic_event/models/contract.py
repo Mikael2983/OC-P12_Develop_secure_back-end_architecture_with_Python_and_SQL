@@ -1,7 +1,8 @@
 """Contract ORM model with validation, error handling, and relationships."""
-from sqlalchemy import Date, Column, Integer, String, ForeignKey, Boolean
-from sqlalchemy.orm import relationship, Session
 import logging
+from sqlalchemy import Date, Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import relationship, Session
 
 from epic_event.models.base import Base
 from epic_event.models import Client, Entity
@@ -66,15 +67,18 @@ class Contract(Base, Entity):
             total = float(self.total_amount)
             due = float(self.amount_due)
         except (TypeError, ValueError):
-            logger.exception("Amounts must be valid numeric values.")
-            raise ValueError("Amounts must be valid numeric values.")
+            error="Amounts must be valid numeric values."
+            logger.exception(error)
+            raise ValueError(error)
 
         if total < 0 or due < 0:
-            logger.exception("Amounts must be positive.")
-            raise ValueError("Amounts must be positive.")
+            error = "Amounts must be positive."
+            logger.exception(error)
+            raise ValueError(error)
         if due > total:
-            logger.exception("Amount due cannot exceed total amount.")
-            raise ValueError("Amount due cannot exceed total amount.")
+            error = "Amount due cannot exceed total amount."
+            logger.exception(error)
+            raise ValueError(error)
 
     @staticmethod
     def validate_client_existence(db: Session, client_id: Column[int]) -> None:
@@ -86,18 +90,24 @@ class Contract(Base, Entity):
             client_id: id of the client
         Raises:
             ValueError: If client_id is not set or client does not exist.
+            SQLAlchemyError : If a database error occurs during the query.
         """
+
+        if not client_id:
+            error = "Missing client_id."
+            logger.exception(error)
+            raise ValueError(error)
+
         try:
-            if not client_id:
-                logger.exception("Missing client_id.")
-                raise ValueError("Missing client_id.")
             with db.no_autoflush:
                 client = db.query(Client).filter_by(id=client_id).first()
             if not client:
-                logger.exception(f"No client found with id={client_id}.")
-                raise ValueError(f"No client found with id={client_id}.")
-        except Exception as e:
-            logger.exception(e)
+                error = f"No client found with id={client_id}."
+                logger.exception(error)
+                raise ValueError(error)
+        except SQLAlchemyError as e:
+            error = f"Database error during client_id validation: {e}"
+            logger.exception(error)
             raise
 
     def validate_all(self, db: Session) -> None:
@@ -107,8 +117,6 @@ class Contract(Base, Entity):
         Args:
             db (Session): SQLAlchemy session.
 
-        Raises:
-            ValueError: If any validation fails.
         """
         self.validate_amounts()
         self.validate_client_existence(db, self.client_id)

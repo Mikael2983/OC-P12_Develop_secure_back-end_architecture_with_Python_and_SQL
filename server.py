@@ -76,7 +76,7 @@ if __name__ == "__main__":
         elif choice == "2":
             print("Démarrage automatique : serveur + démo Selenium")
             selenium_process = subprocess.Popen(
-                [sys.executable, "demo_selenium.py"])
+                [sys.executable, "epic_event/demo_selenium.py"])
             print(f"Serveur actif sur http://localhost:{port}")
 
             try:

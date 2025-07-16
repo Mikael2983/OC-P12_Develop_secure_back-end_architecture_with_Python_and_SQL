@@ -1,8 +1,9 @@
 """Event ORM model with validation, error handling, and relationships."""
-from datetime import date
+from datetime import date, datetime
 
 import logging
 from sqlalchemy import Date, Column, Integer, String, ForeignKey, Text, Boolean
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import relationship, Session
 
 from epic_event.models.base import Base
@@ -57,13 +58,10 @@ class Event(Base, Entity):
         Raises:
             ValueError: If title is missing or only whitespace.
         """
-        try:
-            if not title or not title.strip():
-                logger.exception("Title is required.")
-                raise ValueError("Title is required.")
-        except Exception as e:
-            logger.exception(e)
-            raise
+        if not title or not title.strip():
+            error = "Title is required."
+            logger.exception(error)
+            raise ValueError(error)
 
     def _validate_dates(self) -> None:
         """
@@ -72,16 +70,26 @@ class Event(Base, Entity):
         Raises:
             ValueError: If dates are missing, not of type `date`, or start > end.
         """
-        try:
-            if not isinstance(self.start_date, date) or not isinstance(self.end_date, date):
-                logger.exception("Start and end dates must be valid date instances.")
-                raise ValueError("Start and end dates must be valid date instances.")
-            if self.start_date > self.end_date:
-                logger.exception("Start date cannot be after end date.")
-                raise ValueError("Start date cannot be after end date.")
-        except Exception as e:
-            logger.exception(e)
-            raise
+        for value in (self.start_date, self.end_date):
+            if isinstance(value, date):
+                continue
+            elif isinstance(value, str):
+                try:
+                    value = datetime.strptime(value.strip(), "%d-%m-%Y").date()
+                except ValueError:
+                    error = f"Date invalide ou au mauvais format (attendu : JJ-MM-AAAA) : {value}"
+                    logger.exception(error)
+                    raise ValueError(error)
+            else:
+                error = "La date doit être une instance de `date` ou une chaîne."
+                logger.exception(error)
+                raise ValueError(error)
+
+        if self.start_date > self.end_date:
+            error = "Start date cannot be after end date."
+            logger.exception(error)
+            raise ValueError(error)
+
 
     @staticmethod
     def _validate_participants(number: Column[int]) -> None:
@@ -95,12 +103,14 @@ class Event(Base, Entity):
         """
         try:
             number = int(number)
-            if number < 0:
-                logger.exception("Participants must be a positive integer.")
-                raise ValueError("Participants must be a positive integer.")
-        except Exception as e:
+        except (ValueError, TypeError) as e:
             logger.exception(e)
             raise
+
+        if number < 0:
+            logger.exception("Participants must be a positive integer.")
+            raise ValueError("Participants must be a positive integer.")
+
 
     @staticmethod
     def _validate_contract_id(db: Session, contract_id: Column[int]) -> None:
@@ -110,24 +120,28 @@ class Event(Base, Entity):
         Args:
             db (Session): SQLAlchemy session.
             contract_id (int): contract id related to the event.
+
         Raises:
             ValueError: If contract is not found or not signed.
+            SQLAlchemyError : If a database error occurs during the query.
         """
         try:
             contracts = Contract.filter_by_fields(db, id=contract_id)
-
-            if not contracts:
-                logger.exception(f"Contract ID {contract_id} not found.")
-                raise ValueError(f"Contract ID {contract_id} not found.")
-
-            contract = contracts[0]
-
-            if not contract.signed:
-                logger.exception("The contract must be signed before assigning to an event.")
-                raise ValueError("The contract must be signed before assigning to an event.")
-        except Exception as e:
-            logger.exception(e)
+        except SQLAlchemyError as e:
             raise
+
+        if not contracts:
+            error = f"Contract ID {contract_id} not found."
+            logger.exception(error)
+            raise ValueError(error)
+
+        contract = contracts[0]
+
+        if not contract.signed:
+            error = "The contract must be signed before assigning to an event."
+            logger.exception(error)
+            raise ValueError(error)
+
 
     @staticmethod
     def _validate_support_id(db: Session, support_id: Column[int]) -> None:
@@ -140,21 +154,23 @@ class Event(Base, Entity):
 
         Raises:
             ValueError: If the collaborator is not valid or not in the support role.
-
+            SQLAlchemyError : If a database error occurs during the query.
         """
-        try:
-            if support_id is not None:
+        if support_id is not None:
+            try:
                 with db.no_autoflush:
                     collaborator = db.query(Collaborator).filter_by(id=support_id).first()
-                if not collaborator:
-                    logger.exception(f"Collaborator ID {support_id} not found.")
-                    raise ValueError(f"Collaborator ID {support_id} not found.")
-                if collaborator.role != "support":
-                    logger.exception("The selected collaborator is not in the 'support' role.")
-                    raise ValueError("The selected collaborator is not in the 'support' role.")
-        except Exception as e:
-            logger.exception(e)
-            raise
+            except SQLAlchemyError as e:
+                logger.exception(e)
+                raise
+            if not collaborator:
+                error = f"Collaborator ID {support_id} not found."
+                logger.exception(error)
+                raise ValueError(error)
+            if collaborator.role != "support":
+                error = "The selected collaborator is not in the 'support' role."
+                logger.exception(error)
+                raise ValueError(error)
 
     def validate_all(self, db: Session) -> None:
         """

@@ -6,6 +6,7 @@ import threading
 import time
 
 from selenium import webdriver
+from sqlalchemy.exc import SQLAlchemyError
 
 from epic_event.models import Database, Client, Collaborator, Contract, Event
 from epic_event.models.base import Base
@@ -33,16 +34,18 @@ def db_path() -> str:
     if path.exists():
         try:
             os.remove(path)
-        except Exception:
-            raise RuntimeError("Impossible de supprimer test_database.db : fichier verrouillé.")
+        except (PermissionError, OSError) :
+            raise RuntimeError(
+                "Impossible de supprimer test_database.db : fichier verrouillé.")
 
     yield str(path)
 
     if path.exists():
         try:
             os.remove(path)
-        except Exception:
-            print("Impossible de supprimer la base de test en fin de session.")
+        except (PermissionError, OSError):
+            raise RuntimeError(
+                "Impossible de supprimer test_database.db : fichier verrouillé.")
 
 
 @pytest.fixture(scope="session")
@@ -59,13 +62,13 @@ def db_session(db_path: str):
     try:
         session.rollback()
         session.close()
-    except Exception:
+    except SQLAlchemyError:
         pass
 
     try:
         Base.metadata.drop_all(bind=db.engine)
         db.engine.dispose()
-    except Exception:
+    except SQLAlchemyError:
         pass
 
 
@@ -105,9 +108,9 @@ def seed_data_client(db_session):
     client = db_session.query(Client).first()
     return client
 
+
 @pytest.fixture(scope="session")
 def seed_data_contract(db_session):
-
     signed_contract = db_session.query(Contract).filter(
         Contract.signed.is_(True),
         Contract.event == None
@@ -128,7 +131,6 @@ def seed_data_contract(db_session):
 
 @pytest.fixture(scope="session")
 def seed_data_event(db_session, seed_data_collaborator, seed_data_contract):
-
     event = db_session.query(Event).first()
 
     return event

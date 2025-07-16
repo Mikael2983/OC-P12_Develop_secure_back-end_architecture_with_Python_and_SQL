@@ -50,8 +50,6 @@ class Client(Base, Entity):
         """
         Validates all the client's fields and sanitizes them where necessary.
 
-        Raises:
-            ValueError: If any validation fails.
         """
         self._validate_full_name(self.full_name)
         self._validate_email(self.email)
@@ -61,20 +59,22 @@ class Client(Base, Entity):
 
     @staticmethod
     def _validate_full_name(name: str):
-        """Strips and validates the client's full name."""
-        try:
-            if not name or not name.strip():
-                logger.exception("Full name must not be empty.")
-                raise ValueError("Full name must not be empty.")
+        """
+        Validates that the full name is not empty, is alphabetical and unique.
+        Args:
+            name: the name to check.
 
-            if not re.fullmatch(
-                    r"[A-Za-zÀ-ÖØ-öø-ÿ\- ]+", name):
-                logger.exception("Full name must be alphabetical.")
-                raise ValueError("Full name must be alphabetical.")
+        Raises:
+            ValueError: If the name is not a valid string format.
+        """
+        if not name or not name.strip():
+            logger.exception("Full name must not be empty.")
+            raise ValueError("Full name must not be empty.")
 
-        except Exception as e:
-            logger.exception(e)
-            raise
+        if not re.fullmatch(
+                r"[A-Za-zÀ-ÖØ-öø-ÿ\- ]+", name):
+            logger.exception("Full name must be alphabetical.")
+            raise ValueError("Full name must be alphabetical.")
 
 
     @staticmethod
@@ -90,12 +90,14 @@ class Client(Base, Entity):
 
         """
         if not isinstance(email, str):
-            logger.exception("L'email doit être une chaîne de caractères.")
-            raise ValueError("L'email doit être une chaîne de caractères.")
+            error = "L'email doit être une chaîne de caractères."
+            logger.exception(error)
+            raise ValueError(error)
 
         if not re.fullmatch(r"[^@]+@[^@]+\.[^@]+", email):
-            logger.exception(f"Format d'email invalide: {email}")
-            raise ValueError(f"Format d'email invalide: {email}")
+            error = f"Format d'email invalide: {email}"
+            logger.exception(error)
+            raise ValueError(error)
 
 
     @staticmethod
@@ -110,16 +112,20 @@ class Client(Base, Entity):
             ValueError: If the phone number is not a string or if it does not
                         match the expected French phone number formats.
         """
+
         if not isinstance(phone, str):
-            logger.exception("Le numéro de téléphone doit être une chaîne de caractères.")
-            raise ValueError(
-                "Le numéro de téléphone doit être une chaîne de caractères.")
+            error = "Le numéro de téléphone doit être une chaîne de caractères."
+            logger.exception(error)
+            raise ValueError(error)
+
         phone = phone.replace(" ", "")
         national = r"^0[1-9](?:[ .-]?\d{2}){4}$"
         international = r"^\+33[1-9](?:[ .-]?\d{2}){4}$"
+
         if not (re.fullmatch(national, phone) or re.fullmatch(international, phone)):
-            logger.exception(f"Numéro de téléphone invalide : {phone}")
-            raise ValueError(f"Numéro de téléphone invalide : {phone}")
+            error = f"Numéro de téléphone invalide : {phone}"
+            logger.exception(error)
+            raise ValueError(error)
 
     @staticmethod
     def _validate_company_name(company: str) -> str:
@@ -131,8 +137,9 @@ class Client(Base, Entity):
             ValueError: If the company name is not a string or if it's empty'.
         """
         if not isinstance(company, str) or not company.strip():
-            logger.exception("Le nom de l'entreprise est invalide ou vide.")
-            raise ValueError("Le nom de l'entreprise est invalide ou vide.")
+            error = "Le nom de l'entreprise est invalide ou vide."
+            logger.exception(error)
+            raise ValueError(error)
 
     @staticmethod
     def _validate_date(value: Union[date, str]) -> date:
@@ -157,12 +164,9 @@ class Client(Base, Entity):
             try:
                 return datetime.strptime(value.strip(), "%d-%m-%Y").date()
             except ValueError:
-                logger.exception(
-                    f"Date invalide ou au mauvais format (attendu : JJ-MM-AAAA) : {value}")
-                raise ValueError(
-                    f"Date invalide ou au mauvais format (attendu : JJ-MM-AAAA) : {value}")
-
-        logger.exception(
-            "La date doit être une instance de `date` ou une chaîne.")
-        raise ValueError(
-            "La date doit être une instance de `date` ou une chaîne.")
+                error = f"Date invalide ou au mauvais format (attendu : JJ-MM-AAAA) : {value}"
+                logger.exception(error)
+                raise ValueError(error)
+        error = "La date doit être une instance de `date` ou une chaîne."
+        logger.exception(error)
+        raise ValueError(error)

@@ -1,6 +1,7 @@
 import logging
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker, Session
 
 from epic_event.models.base import Base
@@ -30,9 +31,13 @@ class Database:
         return self.session
 
     def initialize_database(self) -> None:
-        """Create tables for all models declared with Base."""
+        """Create tables for all models declared with Base.
+
+            Raises :
+                SQLAlchemyError : If a database error occurs during commit.
+        """
         try:
             self.Base.metadata.create_all(self.engine)
-        except Exception as e:
+        except SQLAlchemyError as e:
             logger.exception("Failed to initialize the database")
-            raise RuntimeError("Database initialization failed") from e
+            raise

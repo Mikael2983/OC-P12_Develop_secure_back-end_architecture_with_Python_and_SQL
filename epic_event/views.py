@@ -405,6 +405,7 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[str, bool]:
                 "error": "Entité inconnue"})
 
     try:
+
         if entity_name == "collaborators":
             instance = Collaborator(
                 full_name=data["full_name"],
@@ -420,13 +421,13 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[str, bool]:
 
         elif entity_name == "clients":
             data["id_commercial"] = user.id
-            data["created_date"] = datetime.today()
+            data["created_date"] = date.today()
             data['last_contact_date'] = date.fromisoformat(
                 data['last_contact_date'])
             instance = model(**data)
 
         elif entity_name == "events":
-            data["start_date"] = date.fromisoformat(data["start_date"])
+
             data["end_date"] = date.fromisoformat(data["end_date"])
             data["participants"] = int(data["participants"])
             data["contract_id"] = int(data["contract_id"])
@@ -440,9 +441,11 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[str, bool]:
     except Exception as e:
         session.rollback()
         session.refresh(instance)
+        error= f"Erreur : {str(e)}"
+        logger.info(error)
         return renderer.render_template(
             f"{entity_name}_create.html",
-            {"user": user, "error": f"Erreur : {str(e)}"}
+            {"user": user, "error": error}
         )
     instance.save(db)
     logger.info(f"Entité créé: {instance}")
@@ -572,15 +575,10 @@ def entity_update_post_view(pk: int,
     instance = items[0]
 
     try:
-        for k, v in data.items():
-            if k == "signed":
-                v = 'True' == v
-            setattr(instance, k, v)
-        instance.validate_all(session)
+        instance.update(session, data.items)
 
     except Exception as e:
-        session.rollback()
-        session.refresh(instance)
+
         return renderer.render_template(
             f"{entity_name}_update.html",
             {"user": user, entity_name[:-1]: instance,

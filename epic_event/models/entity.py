@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict, List
 
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.inspection import inspect
 
@@ -23,23 +24,14 @@ class Entity:
             obj: Base object to resolve from.
             attr_path: Dotted attribute path.
 
-        Returns:
-            Resolved value or empty string if missing.
         """
         current = obj
         for attr in attr_path.split("."):
             if current is None:
                 return ""
-            try:
-                current = getattr(current, attr)
-            except AttributeError:
-                try:
-                    current = current.__dict__.get(attr)
-                except Exception as e:
-                    logger.exception(e)
-                    return ""
-                if current is None:
-                    return ""
+            current = getattr(current, attr, None)
+            if current is None:
+                return ""
         return current
 
     @classmethod
@@ -62,12 +54,16 @@ class Entity:
                 if part in mapper.relationships:
                     model = mapper.relationships[part].mapper.class_
             return True
-        except Exception as e:
+        except SQLAlchemyError as e:
             logger.exception(e)
             return False
 
     @classmethod
-    def filter_by_fields(cls, db: Session, archived: bool = False, **filters: Dict[str, Any]) -> List[Any]:
+    def filter_by_fields(cls,
+                         db: Session,
+                         archived: bool = False,
+                         **filters: Dict[str, Any]
+                         ) -> List[Any]:
         """
         Filter instances based on field-value pairs, supporting nested relationships.
 
@@ -78,6 +74,9 @@ class Entity:
 
         Returns:
             List of filtered ORM instances.
+
+        raise : AttributeError if wrong field in filters
+                SQLAlchemyError : If a database error occurs during the query.
         """
         try:
             query = db.query(cls)
@@ -110,12 +109,17 @@ class Entity:
 
             return query.all()
 
-        except Exception as e:
+        except (AttributeError, SQLAlchemyError) as e:
             logger.exception(e)
             raise
 
     @classmethod
-    def order_by_fields(cls, db: Session, field_path: str, descending: bool = False, archived: bool = False) -> List[Any]:
+    def order_by_fields(cls,
+                        db: Session,
+                        field_path: str,
+                        descending: bool = False,
+                        archived: bool = False
+                        ) -> List[Any]:
         """
         Return all objects ordered by a specified field, including nested fields.
 
@@ -127,6 +131,9 @@ class Entity:
 
         Returns:
             Sorted list of ORM instances.
+
+        Raises:
+            SQLAlchemyError : If a database error occurs during the query.
         """
         try:
             query = db.query(cls)
@@ -145,11 +152,14 @@ class Entity:
 
             results = query.all()
 
-            return sorted(results, key=lambda obj: cls._resolve(obj, field_path), reverse=descending)
-
-        except Exception as e:
+        except SQLAlchemyError as e:
             logger.exception(e)
             raise
+
+        return sorted(results,
+                      key=lambda obj: cls._resolve(obj, field_path),
+                      reverse=descending
+                      )
 
     def save(self, db: Session) -> None:
         """
@@ -157,31 +167,44 @@ class Entity:
 
         Args:
             db: SQLAlchemy session.
+
+        Raises:
+            SQLAlchemyError : If a database error occurs during the commit.
         """
         try:
-            self.validate_all(db)
-        except Exception as e:
+            db.add(self)
+            db.commit()
+        except SQLAlchemyError as e:
+            logger.exception(f"database error occurs during save: {e}")
             db.rollback()
-            logger.exception(e)
             raise
-        db.add(self)
-        db.commit()
 
-    def update(self, db: Session, **kwargs) -> None:
+    def update(self, db: Session, data: dict) -> None:
         """
         Update the instance with given attributes and persist changes.
 
         Args:
             db: SQLAlchemy session.
-            **kwargs: Field-value pairs to update.
+            data: Field-value pairs to update.
+
+        Raises:
+            AttributeError : if an attribute is protected or non-existent.
+            ValueError, TypeError: invalid data during validation.
+            SQLAlchemyError : If a database error occurs during the commit.
         """
         try:
-            for attr, value in kwargs.items():
+            for attr, value in data.items():
+
+                if attr == "signed":
+                    value = 'True' == value
+
                 if hasattr(self, attr):
                     setattr(self, attr, value)
+
             self.validate_all(db)
             db.commit()
-        except Exception as e:
+
+        except (AttributeError, ValueError, TypeError, SQLAlchemyError) as e:
             db.rollback()
             logger.exception(e)
             raise
@@ -197,20 +220,20 @@ class Entity:
 
         Raises:
             ValueError: If object is not found or lacks an 'archived' field.
+            SQLAlchemyError: If a database error occurs during the commit.
         """
         try:
             obj = db.query(cls).filter_by(id=item_id).first()
 
             if not obj or not hasattr(obj, "archived"):
-                logger.exception(
-                    f"{cls.__name__} with ID={item_id} not found or missing 'archived' field.")
-                raise ValueError(
-                    f"{cls.__name__} with ID={item_id} not found or missing 'archived' field.")
+                error = f"{cls.__name__} with ID={item_id} not found"
+                logger.exception(error)
+                raise ValueError(error)
 
             obj.archived = True
             db.commit()
 
-        except Exception as e:
+        except (SQLAlchemyError, ValueError) as e:
             db.rollback()
             logger.exception(e)
             raise

@@ -8,6 +8,7 @@ Supported features:
 - {% extends 'base.html' %} and {% block name %}...{% endblock %} for inheritance.
 """
 from collections.abc import Iterable
+import logging
 import os
 import re
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -16,6 +17,7 @@ from sentry_sdk import capture_exception
 
 TemplatePart = Union[str, Any]
 Context = Dict[str, Any]
+logger = logging.getLogger(__name__)
 
 
 def safe_eval(expr: str, context: Context) -> Any:
@@ -30,8 +32,9 @@ def safe_eval(expr: str, context: Context) -> Any:
     """
     try:
         return eval(expr, {"__builtins__": {}}, context)
-    except Exception as e:
-        capture_exception(e)
+    except (SyntaxError, NameError, TypeError, ZeroDivisionError,
+            AttributeError, KeyError, ValueError) as e:
+        logger.exception(e)
         return f"[Error evaluating '{expr}': {e}]"
 
 
@@ -366,79 +369,23 @@ def make_query_string(query_params):
     order = query_params.get("order", ["asc"])[0]
 
     return {
-        "email": make_sort_url("email",
-                               sort_field, order
-                               ),
-        "id": make_sort_url("id",
-                            sort_field,
-                            order
-                            ),
-        "client": make_sort_url("contract.client.company_name",
-                                sort_field,
-                                order
-                                ),
-        "total_amount": make_sort_url("total_amount",
-                                      sort_field,
-                                      order
-                                      ),
-        "amount_due": make_sort_url("amount_due",
-                                    sort_field,
-                                    order
-                                    ),
-        "created_date": make_sort_url("created_date",
-                                      sort_field,
-                                      order
-                                      ),
-        "signed": make_sort_url("signed",
-                                sort_field,
-                                order
-                                ),
-        "event": make_sort_url("event.title",
-                               sort_field,
-                               order
-                               ),
-        "full_name": make_sort_url("full_name",
-                                   sort_field,
-                                   order
-                                   ),
-        "role": make_sort_url("role",
-                              sort_field,
-                              order
-                              ),
-        "company_name": make_sort_url("company_name",
-                                      sort_field,
-                                      order
-                                      ),
-        "last_contact": make_sort_url("last_contact_date",
-                                      sort_field,
-                                      order
-                                      ),
-        "commercial": make_sort_url("commercial.full_name",
-                                    sort_field,
-                                    order
-                                    ),
-        "title": make_sort_url("title",
-                               sort_field,
-                               order
-                               ),
-        "support": make_sort_url("support.full_name",
-                                 sort_field,
-                                 order
-                                 ),
-        "start_date": make_sort_url("start_date",
-                                    sort_field,
-                                    order
-                                    ),
-        "end_date": make_sort_url("end_date",
-                                  sort_field,
-                                  order
-                                  ),
-        "location": make_sort_url("location",
-                                  sort_field,
-                                  order
-                                  ),
-        "participants": make_sort_url("participants",
-                                      sort_field,
-                                      order
-                                      ),
+        "email": make_sort_url("email", sort_field, order),
+        "id": make_sort_url("id", sort_field, order),
+        "client": make_sort_url("contract.client.company_name", sort_field, order),
+        "total_amount": make_sort_url("total_amount", sort_field, order),
+        "amount_due": make_sort_url("amount_due", sort_field, order),
+        "created_date": make_sort_url("created_date", sort_field, order),
+        "signed": make_sort_url("signed", sort_field, order),
+        "event": make_sort_url("event.title", sort_field, order),
+        "full_name": make_sort_url("full_name", sort_field, order),
+        "role": make_sort_url("role", sort_field, order),
+        "company_name": make_sort_url("company_name", sort_field, order),
+        "last_contact": make_sort_url("last_contact_date", sort_field, order),
+        "commercial": make_sort_url("commercial.full_name", sort_field, order),
+        "title": make_sort_url("title", sort_field, order),
+        "support": make_sort_url("support.full_name", sort_field, order),
+        "start_date": make_sort_url("start_date", sort_field, order),
+        "end_date": make_sort_url("end_date", sort_field, order),
+        "location": make_sort_url("location", sort_field, order),
+        "participants": make_sort_url("participants", sort_field, order),
     }
