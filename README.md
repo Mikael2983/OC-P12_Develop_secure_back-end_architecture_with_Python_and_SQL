@@ -36,20 +36,20 @@ It uses the user's role to define the actions they are allowed to perform in the
 ## 🧱 Architecture
 ```bash
 Repository/
-    ├── epic_event/                    # Code principal de l'application
+    ├── epic_event/             # Main code of the application
     │   ├── models/             # ORM SQLAlchemy
-    │   ├── static/             # Fichiers statiques (CSS, JS, images)
+    │   ├── static/             # statics files(CSS, JS, images)
     │   ├── templates/          # Templates HTML  
     │   ├── tests/              # Tests Selenium & Pytest
-    │   ├── permission.py       # Gestion des permissions et des rôles
-    │   ├── render.engine.py    # Moteur de rendu HTML 
-    │   ├── router.py           # Routage HTTP personnalisé
-    │   ├── settings.py         # Paramètres de configuration (port, DB, constantes)
-    │   └── views.py            # Logique métier et validation
-    ├── server.py           # Serveur HTTP personnalisé
+    │   ├── permission.py       # Management of permissions and roles
+    │   ├── render.engine.py    # HTML Renderer 
+    │   ├── router.py           # Custom HTTP Routing
+    │   ├── settings.py         # Configuration parameters (port, DB, constants)
+    │   └── views.py            # Business logic and validation
+    ├── server.py               # Custom HTTP server
     ├── README.md
     ├── requirements.txt
-    └── Schémas_BDD_Epic_Event.pdf
+    └── Schémas_BDD_Epic_Event.pdf  # schemas of the database
 ```
 
 ---
