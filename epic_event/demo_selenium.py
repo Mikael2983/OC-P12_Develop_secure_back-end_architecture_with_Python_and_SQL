@@ -3,6 +3,14 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.chrome.options import Options
+
+
+options = Options()
+options.add_argument("--log-level=3")
+options.add_experimental_option("excludeSwitches", ["enable-logging"])
+
+driver = webdriver.Chrome(options=options)
 
 # Helpers login/logout
 login_dict = {
@@ -12,9 +20,6 @@ login_dict = {
     "nouveau_commercial": {"full_name": "Jean Martin", "password": "newpass"},
     "support": {"full_name": "Emma Bernard", "password": "emmapass"}
 }
-
-# Initialisation driver
-driver = webdriver.Chrome()
 
 
 def login(driver, role):
@@ -180,7 +185,8 @@ time.sleep(1)
 input("appuyer sur enter pour continuer")
 driver.find_element(By.XPATH, "//button[@type='submit']").click()
 time.sleep(2)
-
+print("suivant")
+input("appuyer sur enter pour continuer")
 # Liste clients
 driver.get("http://localhost:8000/clients")
 print("Voila le client est créé, il a discuté du projet avec le service de "
@@ -198,6 +204,7 @@ driver.get("http://localhost:8000/contracts/create")
 time.sleep(1)
 Select(driver.find_element(By.ID, "client_id")).select_by_value("4")
 time.sleep(1)
+print("elle sélectionne le client dans le menu déroulant")
 driver.find_element(By.ID, "total_amount").send_keys("5000")
 driver.find_element(By.ID, "amount_due").send_keys("5000")
 time.sleep(1)
@@ -239,6 +246,7 @@ print("Elle lui arrange ça vite fait.")
 # Signed = True
 driver.get("http://localhost:8000/contracts/8/update")
 Select(driver.find_element(By.ID, "signed")).select_by_value("True")
+input("appuyer sur enter pour continuer")
 driver.find_element(By.XPATH, "//button[@type='submit']").click()
 time.sleep(2)
 print("Et voila, le contrat est validé comme signé.")

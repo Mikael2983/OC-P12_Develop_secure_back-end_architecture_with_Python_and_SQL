@@ -23,6 +23,12 @@ class MyHandler(BaseHTTPRequestHandler):
     session = None
     database = None
 
+    def log_message(self, format, *args):
+        pass
+
+    def log_request(self, code='-', size='-'):
+        pass
+
     def parsed_url(self):
         parsed = urlparse(self.path)
         return parsed.path, parse_qs(parsed.query)
@@ -142,11 +148,9 @@ class MyHandler(BaseHTTPRequestHandler):
 
     def serve_static_file(self):
         static_dir = os.path.join(os.path.dirname(__file__), "static")
-        print(static_dir)
         relative_path = self.path[
                         len("/static/"):]
         file_path = os.path.join(static_dir, relative_path)
-        print(file_path)
         if os.path.isfile(file_path):
             content_type, _ = mimetypes.guess_type(file_path)
             content_type = content_type or "application/octet-stream"
