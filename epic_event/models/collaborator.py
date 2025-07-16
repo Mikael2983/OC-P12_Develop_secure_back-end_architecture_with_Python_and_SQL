@@ -177,6 +177,7 @@ class Collaborator(Base, Entity):
 
         Raises:
             TypeError: If the password is not a string.
+            ValueError: If  not a valid bcrypt hash
         """
 
         if not isinstance(raw_password, str):
@@ -184,8 +185,8 @@ class Collaborator(Base, Entity):
 
         try:
             return bcrypt.checkpw(raw_password.encode("utf-8"),
-                                  self.password.encode("utf-8"))
+                                  self.password)
 
-        except (ValueError, bcrypt.error) as e:
+        except (ValueError, TypeError) as e:
             logger.exception("Password verification failed: %s", e)
             return False
