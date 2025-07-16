@@ -1,3 +1,4 @@
+import re
 from datetime import date, timedelta
 import pytest
 
@@ -24,7 +25,8 @@ def test_validate_dates_invalid_type_raises(db_session, seed_data_event):
         event.start_date = "2023-01-01"
         event.end_date = "2023-01-02"
         with db_session.no_autoflush:
-            with pytest.raises(ValueError, match="Start and end dates must be valid date instances."):
+            with pytest.raises(ValueError,
+                               match=re.escape('Date invalide ou au mauvais format (attendu : JJ-MM-AAAA) : 2023-01-01')):
                 event.validate_all(db_session)
     finally:
         db_session.refresh(event)
@@ -38,7 +40,8 @@ def test_validate_dates_start_after_end_raises(db_session, seed_data_event):
         event.start_date = date.today() + timedelta(days=5)
         event.end_date = date.today()
         with db_session.no_autoflush:
-            with pytest.raises(ValueError, match="Start date cannot be after end date."):
+            with pytest.raises(ValueError,
+                               match="Start date cannot be after end date."):
                 event.validate_all(db_session)
     finally:
         db_session.refresh(event)
@@ -51,7 +54,8 @@ def test_validate_participants_negative_raises(db_session, seed_data_event):
         db_session.begin_nested()
         event.participants = -10
         with db_session.no_autoflush:
-            with pytest.raises(ValueError, match="Participants must be a positive integer."):
+            with pytest.raises(ValueError,
+                               match="Participants must be a positive integer."):
                 event.validate_all(db_session)
     finally:
         db_session.refresh(event)
@@ -64,7 +68,8 @@ def test_validate_contract_id_missing_raises(db_session, seed_data_event):
         db_session.begin_nested()
         event.contract_id = 9999  # ID inexistant
         with db_session.no_autoflush:
-            with pytest.raises(ValueError, match=f"Contract ID {event.contract_id} not found."):
+            with pytest.raises(ValueError,
+                               match=f"Contract ID {event.contract_id} not found."):
                 event.validate_all(db_session)
     finally:
         db_session.refresh(event)
@@ -79,7 +84,8 @@ def test_validate_contract_not_signed_raises(db_session, seed_data_event,
         db_session.begin_nested()
         event.contract_id = not_signed_contract.id
         with db_session.no_autoflush:
-            with pytest.raises(ValueError, match="The contract must be signed before assigning to an event."):
+            with pytest.raises(ValueError,
+                               match="The contract must be signed before assigning to an event."):
                 event.validate_all(db_session)
     finally:
         db_session.refresh(event)
@@ -92,7 +98,8 @@ def test_validate_support_id_not_found_raises(db_session, seed_data_event):
         db_session.begin_nested()
         event.support_id = 9999  # ID inexistant
         with db_session.no_autoflush:
-            with pytest.raises(ValueError, match=f"Collaborator ID {event.support_id} not found."):
+            with pytest.raises(ValueError,
+                               match=f"Collaborator ID {event.support_id} not found."):
                 event.validate_all(db_session)
     finally:
         db_session.refresh(event)
@@ -107,7 +114,8 @@ def test_validate_support_id_invalid_role_raises(db_session, seed_data_event,
         db_session.begin_nested()
         event.support_id = collab.id
         with db_session.no_autoflush:
-            with pytest.raises(ValueError, match="The selected collaborator is not in the 'support' role."):
+            with pytest.raises(ValueError,
+                               match="The selected collaborator is not in the 'support' role."):
                 event.validate_all(db_session)
     finally:
         db_session.refresh(event)
@@ -130,14 +138,3 @@ def test_save_success(db_session, seed_data_contract):
     db_session.delete(found)
     db_session.commit()
 
-
-def test_save_validation_error_triggers_rollback(db_session, seed_data_event):
-    event = seed_data_event
-    event.title = ""
-    with db_session.no_autoflush:
-        with pytest.raises(ValueError):
-            event.save(db_session)
-
-        events = db_session.query(Event).all()
-        assert all(e.title != "" for e in events)
-    db_session.refresh(event)

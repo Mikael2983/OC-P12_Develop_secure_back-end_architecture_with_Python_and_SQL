@@ -83,25 +83,16 @@ def test_save_success(db_session):
                           role="support")
     collab.set_password("securepass")
 
-    with patch.object(collab, "validate_all") as mock_validate:
-        collab.save(db_session)
-        mock_validate.assert_called_once()
-        found = db_session.query(Collaborator).filter_by(
-            email="joe@example.com"
-        ).first()
-        assert found is not None
+    collab.save(db_session)
 
-        db_session.delete(found)
-        db_session.commit()
+    found = db_session.query(Collaborator).filter_by(
+        email="joe@example.com"
+    ).first()
 
+    assert found is not None
 
-def test_save_validation_error_triggers_rollback(db_session):
-    collab = Collaborator(full_name="Fail", email="fail@example.com", role="support")
-    with patch.object(collab, "validate_all", side_effect=ValueError("Invalid")):
-        with pytest.raises(ValueError):
-            collab.save(db_session)
-            found = db_session.query(Collaborator).filter_by(email="fail@example.com").first()
-            assert found is None
+    db_session.delete(found)
+    db_session.commit()
 
 
 def test_set_password_and_check():

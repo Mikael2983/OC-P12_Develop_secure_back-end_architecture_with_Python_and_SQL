@@ -397,7 +397,7 @@ def test_entity_password_view(driver, db_session):
     logout(driver)
 
 
-def test_collaborator_delete(db_session, driver):
+def test_entity_delete_post(db_session, driver):
     login(driver, "gestion")
     time.sleep(2)
     collab = db_session.query(Collaborator).filter_by(full_name="Jean Test").first()
@@ -454,7 +454,7 @@ def test_client_contact_post(driver):
     time.sleep(2)
     driver.find_element(By.ID, "contact").click()
     time.sleep(2)
-    assert str(datetime.today()).split(" ")[0] in driver.page_source
+    assert datetime.today().strftime("%d/%m/%Y") in driver.page_source
 
 
 def test_toggle_archive_display(driver):

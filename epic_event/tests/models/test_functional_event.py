@@ -28,7 +28,7 @@ def test_validate_dates_invalid_type_raises(seed_data_event, db_session):
     event.start_date = "2024-01-01",
     event.end_date = "2024-01-02",
     with db_session.no_autoflush:
-        with pytest.raises(ValueError, match="must be valid date instances"):
+        with pytest.raises(ValueError, match='La date doit être une instance de `date` ou une chaîne.'):
             event.validate_all(db_session)
     db_session.refresh(event)
 
