@@ -179,13 +179,13 @@ class Entity:
             db.rollback()
             raise
 
-    def update(self, db: Session, data: dict) -> None:
+    def update(self, db: Session, **data) -> None:
         """
         Update the instance with given attributes and persist changes.
 
         Args:
             db: SQLAlchemy session.
-            data: Field-value pairs to update.
+            **data: Field-value pairs to update.
 
         Raises:
             AttributeError : if an attribute is protected or non-existent.

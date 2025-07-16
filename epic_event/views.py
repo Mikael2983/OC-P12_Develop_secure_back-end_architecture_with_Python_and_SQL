@@ -244,6 +244,7 @@ def entity_list_view(query_params: Dict[str, list[str]],
             "order": order,
             "show_archived": show_archived,
             "sort_links": query_strings,
+            "with_sorting": True,  # on template, allows the display of sorting links
             "user_can": user_can,
             "error": "",
         })
@@ -301,6 +302,7 @@ def entity_detail_view(pk: int, **kwargs) -> str:
     item = items[0]
     context = {
         "user": user,
+        "with_sorting": False,  # on template, prevents the display of sorting links
         "user_can": user_can,
         entity_name: [item],
         entity_name[:-1]: item
@@ -427,7 +429,7 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[str, bool]:
             instance = model(**data)
 
         elif entity_name == "events":
-
+            data["start_date"] = date.fromisoformat(data["start_date"])
             data["end_date"] = date.fromisoformat(data["end_date"])
             data["participants"] = int(data["participants"])
             data["contract_id"] = int(data["contract_id"])
@@ -575,9 +577,9 @@ def entity_update_post_view(pk: int,
     instance = items[0]
 
     try:
-        instance.update(session, data.items)
+        instance.update(session, **data)
 
-    except Exception as e:
+    except ValueError as e:
 
         return renderer.render_template(
             f"{entity_name}_update.html",
@@ -587,6 +589,7 @@ def entity_update_post_view(pk: int,
     instance.save(session)
     logger.info(f"L'entité {entity_name} avec l'id={pk} est mis à jour")
     return True
+
 
 @login_required
 @has_permission("update")
