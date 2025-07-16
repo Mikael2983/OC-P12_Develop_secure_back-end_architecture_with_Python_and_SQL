@@ -72,12 +72,13 @@
             <td>{{ contract.client.company_name }}</td>
             <td>{{ contract.total_amount }} € </td>
             <td>{{ contract.amount_due }} € </td>
-            <td>{{ contract.created_date.strftime("%d-%m-%Y") }}</td>
+            <td>{{ contract.formatted_created_date }}</td>
             <td>{% if contract.signed %} OUI {% else %} NON {% endif %}</td>
             <td>
-                {% if contract.event %}  {{ contract.event.title }}
+                {% if contract.event %}
+                    {{ contract.event.title }}
                 {% else %}
-                    {% if contract.signed and contract.client.commercial == user %}
+                    {% if contract.signed and (user.role == "admin" or contract.client.commercial == user) %}
                         <a href="/events/create?contract_id={{ contract.id }}">Créer un événement</a>
                     {% else %}
                         NC

@@ -79,8 +79,8 @@
                     {% endif %}
                 {% endif %}
             </td>
-            <td>{{ event.start_date.strftime("%d-%m-%Y") }}</td>
-            <td>{{ event.end_date.strftime("%d-%m-%Y") }}</td>
+            <td>{{ event.formatted_start_date }}</td>
+            <td>{{ event.formatted_end_date }}</td>
             <td>{{ event.location }}</td>
             <td>{{ event.participants }} personnes</td>
             {% if event.archived == False %}

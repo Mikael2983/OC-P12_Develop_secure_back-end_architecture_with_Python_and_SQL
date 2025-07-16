@@ -37,6 +37,10 @@ class Contract(Base, Entity):
     client = relationship("Client", back_populates="contracts")
     event = relationship("Event", back_populates="contract", uselist=False)
 
+    @property
+    def formatted_created_date(self):
+        return self.created_date.strftime("%d/%m/%Y")
+
     @staticmethod
     def normalize_signed(raw_value: Column[bool]) -> bool:
         """

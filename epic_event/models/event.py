@@ -48,6 +48,14 @@ class Event(Base, Entity):
     contract = relationship("Contract", back_populates="event")
     support = relationship("Collaborator", back_populates="events")
 
+    @property
+    def formatted_start_date(self):
+        return self.start_date.strftime("%d/%m/%Y")
+
+    @property
+    def formatted_end_date(self):
+        return self.end_date.strftime("%d/%m/%Y")
+
     @staticmethod
     def _validate_title(title: Column[str]) -> None:
         """

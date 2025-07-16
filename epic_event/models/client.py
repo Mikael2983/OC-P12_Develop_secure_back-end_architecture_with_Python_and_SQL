@@ -46,6 +46,14 @@ class Client(Base, Entity):
     contracts = relationship("Contract", back_populates="client")
     commercial = relationship("Collaborator", back_populates="clients")
 
+    @property
+    def formatted_created_date(self):
+        return self.created_date.strftime("%d/%m/%Y")
+
+    @property
+    def formatted_last_contact_date(self):
+        return self.last_contact_date.strftime("%d/%m/%Y")
+
     def validate_all(self, session: Session) -> None:
         """
         Validates all the client's fields and sanitizes them where necessary.
