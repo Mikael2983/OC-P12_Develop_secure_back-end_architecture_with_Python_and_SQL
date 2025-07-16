@@ -79,10 +79,10 @@
                     {% endif %}
                 {% endif %}
             </td>
-            <td>{{ event.start_date }}</td>
-            <td>{{ event.end_date }}</td>
+            <td>{{ event.start_date.strftime("%d-%m-%Y") }}</td>
+            <td>{{ event.end_date.strftime("%d-%m-%Y") }}</td>
             <td>{{ event.location }}</td>
-            <td>{{ event.participants }}</td>
+            <td>{{ event.participants }} personnes</td>
             {% if event.archived == False %}
                 {% if user_can(user, "update", "events") %}
                     <td>

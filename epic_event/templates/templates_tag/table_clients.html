@@ -51,8 +51,8 @@
             <td><a href="/clients/{{ client.id }}/">{{ client.full_name }}</a></td>
             <td>{{ client.email }}</td>
             <td>{{ client.phone }}</td>
-            <td>{{client.created_date}}</td>
-            <td>{{client.last_contact_date}}</td>
+            <td>{{client.created_date.strftime("%d-%m-%Y")}}</td>
+            <td>{{client.last_contact_date.strftime("%d-%m-%Y")}}</td>
             <td>{{client.commercial.full_name}}</td>
             {% if client.archived == False %}
                 {% if user.role not in ["gestion", "support"] %}
