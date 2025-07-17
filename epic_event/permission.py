@@ -145,17 +145,22 @@ def has_permission(action):
 
             else:
                 if entity_name == "events" and user.role != "admin":
-                    data = args[0] if args and isinstance(args[0], dict) else None
+                    data = args[0] if (
+                            args and isinstance(args[0], dict)) else None
                     if data:
                         contract_id = int(data["contract_id"][0])
                         with session.no_autoflush:
-                            contract = Contract.filter_by_fields(session, id=contract_id)[0]
+                            contract = Contract.filter_by_fields(
+                                session,
+                                id=contract_id)[0]
                             if contract.client.commercial != user:
+                                error = ("Vous ne pouvez créer que les "
+                                         "événements de vos clients")
                                 return _unauthorized(
                                     user,
                                     action,
                                     entity_name,
-                                    "Vous ne pouvez créer que les événements de vos clients" )
+                                    error)
                     else:
                         return False
                 if can_access_entity:
@@ -180,7 +185,8 @@ def _unauthorized(user, action, entity_name, message=None):
     Args:
         user (Collaborator): The current user attempting to perform the action.
         action (str): The action (for example "create", "update", "delete").
-        entity_name (str): The name of the entity concerned ("collaborators", "clients", etc.).
+        entity_name (str): The name of the entity concerned ("collaborators",
+            "clients", etc.).
         message (str, optional): A custom message to display. If None,
             a default message is generated from the action and the entity.
 
