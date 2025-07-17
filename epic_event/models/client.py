@@ -54,6 +54,9 @@ class Client(Base, Entity):
     def formatted_last_contact_date(self):
         return self.last_contact_date.strftime("%d/%m/%Y")
 
+    # session is used by the validate_all method of other models.
+    # as the application calls it by entity.validate_all(session),
+    # it is mandatory here too, even if it is not used
     def validate_all(self, session: Session) -> None:
         """
         Validates all the client's fields and sanitizes them where necessary.
