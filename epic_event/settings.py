@@ -36,7 +36,7 @@ LOGGING_CONFIG = {
             'formatter': 'verbose',
         },
         'sentry': {
-            'level': 'ERROR',
+            'level': 'INFO',
             'class': 'sentry_sdk.integrations.logging.EventHandler',
         },
     },
