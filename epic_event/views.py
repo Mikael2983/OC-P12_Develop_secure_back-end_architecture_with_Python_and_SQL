@@ -1,10 +1,11 @@
 from datetime import datetime, date
+import logging
 from typing import Any, Dict, Union
 import uuid
 
-import logging
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-
+# the import of Event is necessary. it appears indirectly by model = get_model(entity_name)
 from epic_event.models import Collaborator, Client, Contract, Event
 from epic_event.models import SESSION_CONTEXT
 from epic_event.permission import login_required, has_permission, user_can
@@ -226,13 +227,22 @@ def entity_list_view(query_params: Dict[str, list[str]],
                                       archived=show_archived)
         if entity_name == "collaborators":
             items = [item for item in items if item.role != "admin"]
-    except Exception as e:
-        logger.exception(f"Erreur de Tri: {e}")
+    except (AttributeError, ValueError) as e:
+        logger.warning(f"Erreur de tri : {e}")
         return renderer.render_template(
             "index.html",
             {
                 "user": user,
-                "error": f"Erreur de tri : {e}"
+                "error": f"Champ de tri invalide : {e}"
+            })
+
+    except SQLAlchemyError as e:
+        logger.error(f"Erreur SQL : {e}")
+        return renderer.render_template(
+            "index.html",
+            {
+                "user": user,
+                "error": "Erreur base de données lors du tri"
             })
 
     return renderer.render_template(
@@ -244,7 +254,8 @@ def entity_list_view(query_params: Dict[str, list[str]],
             "order": order,
             "show_archived": show_archived,
             "sort_links": query_strings,
-            "with_sorting": True,  # on template, allows the display of sorting links
+            "with_sorting": True,
+            # on template, allows the display of sorting links
             "user_can": user_can,
             "error": "",
         })
@@ -302,7 +313,8 @@ def entity_detail_view(pk: int, **kwargs) -> str:
     item = items[0]
     context = {
         "user": user,
-        "with_sorting": False,  # on template, prevents the display of sorting links
+        "with_sorting": False,
+        # on template, prevents the display of sorting links
         "user_can": user_can,
         entity_name: [item],
         entity_name[:-1]: item
@@ -377,7 +389,8 @@ def entity_create_view(query_params: [Dict[str, list[str]]] = None,
 
 @login_required
 @has_permission("create")
-def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[str, bool]:
+def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[
+    str, bool]:
     """Handle submission of an entity creation form.
 
     Args:
@@ -397,7 +410,7 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[str, bool]:
     user = kwargs.get("user")
     entity_name = kwargs.get("entity_name")
     model = get_model(entity_name)
-    db = kwargs.get("session")
+
     if not model:
         logger.exception(f"Entité inconnue: {entity_name}")
         return renderer.render_template(
@@ -406,52 +419,52 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[str, bool]:
                 "user": user,
                 "error": "Entité inconnue"})
 
+    if entity_name == "collaborators":
+        instance = Collaborator(
+            full_name=data["full_name"],
+            email=data["email"],
+            role=data["role"]
+        )
+        instance.set_password(data["password"])
+
+    elif entity_name == "contracts":
+        data["signed"] = Contract.normalize_signed(data["signed"])
+        data["created_date"] = datetime.today()
+        instance = model(**data)
+
+    elif entity_name == "clients":
+        data["id_commercial"] = user.id
+        data["created_date"] = date.today()
+        data['last_contact_date'] = date.fromisoformat(
+            data['last_contact_date'])
+        instance = model(**data)
+
+    elif entity_name == "events":
+        data["start_date"] = date.fromisoformat(data["start_date"])
+        data["end_date"] = date.fromisoformat(data["end_date"])
+        data["participants"] = int(data["participants"])
+        data["contract_id"] = int(data["contract_id"])
+        instance = model(**data)
+
+    else:
+        instance = model(**data)
+
     try:
+        instance.validate_all(session)
+        instance.save(session)
 
-        if entity_name == "collaborators":
-            instance = Collaborator(
-                full_name=data["full_name"],
-                email=data["email"],
-                role=data["role"]
-            )
-            instance.set_password(data["password"])
-
-        elif entity_name == "contracts":
-            data["signed"] = Contract.normalize_signed(data["signed"])
-            data["created_date"] = datetime.today()
-            instance = model(**data)
-
-        elif entity_name == "clients":
-            data["id_commercial"] = user.id
-            data["created_date"] = date.today()
-            data['last_contact_date'] = date.fromisoformat(
-                data['last_contact_date'])
-            instance = model(**data)
-
-        elif entity_name == "events":
-            data["start_date"] = date.fromisoformat(data["start_date"])
-            data["end_date"] = date.fromisoformat(data["end_date"])
-            data["participants"] = int(data["participants"])
-            data["contract_id"] = int(data["contract_id"])
-            instance = model(**data)
-
-        else:
-            instance = model(**data)
-
-        instance.validate_all(db)
-
-    except Exception as e:
+    except (ValueError, TypeError, SQLAlchemyError) as e:
         session.rollback()
-        session.refresh(instance)
-        error= f"Erreur : {str(e)}"
-        logger.info(error)
+        logger.warning(
+            f"Erreur lors de la création d’un {entity_name} : {e}")
         return renderer.render_template(
             f"{entity_name}_create.html",
-            {"user": user, "error": error}
+            {"user": user, "error": str(e)}
         )
-    instance.save(db)
-    logger.info(f"Entité créé: {instance}")
+
+    logger.info(f"Entité créée : {instance}")
     return True
+
 
 @login_required
 @has_permission("update")
@@ -541,6 +554,11 @@ def entity_update_post_view(pk: int,
 
     Returns:
         bool or str: True if successful, otherwise the rendered error template.
+
+    Raises:
+        ValueError: If the business data is invalid during the update.
+        TypeError: If incorrect type is provided in update data.
+        SQLAlchemyError: If a database error occurs during the commit.
     """
 
     session_id = kwargs.get("session_id")
@@ -578,17 +596,22 @@ def entity_update_post_view(pk: int,
 
     try:
         instance.update(session, **data)
+        instance.save(session)
+        logger.info(f"L'entité {entity_name} avec l'id={pk} est mis à jour")
+        return True
 
-    except ValueError as e:
-
+    except (ValueError, TypeError) as e:
+        session.rollback()
+        logger.warning(
+            f"Erreur métier lors de la mise à jour de {entity_name} id={pk}: {e}")
         return renderer.render_template(
             f"{entity_name}_update.html",
-            {"user": user, entity_name[:-1]: instance,
-             "error": f"Erreur : {e}"}
+            {
+                "user": user,
+                entity_name[:-1]: instance,
+                "error": f"Erreur : {e}"
+            }
         )
-    instance.save(session)
-    logger.info(f"L'entité {entity_name} avec l'id={pk} est mis à jour")
-    return True
 
 
 @login_required
@@ -655,6 +678,12 @@ def entity_delete_post_view(pk: int, **kwargs) -> \
         Union[bool, str]:
             - True if the deletion was successful.
             - Rendered template string with error message otherwise.
+
+    Raises:
+        ValueError: If the entity does not have the 'archived' field or
+            a business error occurs in `soft_delete`.
+        TypeError: If the data is mistyped in the call to `soft_delete`.
+        SQLAlchemyError: If a database error occurs during the deletion.
     """
     user = kwargs.get("user")
     entity_name = kwargs.get("entity_name")
@@ -670,8 +699,9 @@ def entity_delete_post_view(pk: int, **kwargs) -> \
                 "error": "Entité inconnue"
             })
 
-    item = model.filter_by_fields(session, id=pk)
-    if not item:
+    items = model.filter_by_fields(session, id=pk)
+
+    if not items:
         logger.exception(
             f"L'entité {entity_name} avec l'id={pk} est introuvable")
         return renderer.render_template(
@@ -681,22 +711,32 @@ def entity_delete_post_view(pk: int, **kwargs) -> \
                 "error": f"{entity_name.capitalize()} introuvable"
             })
 
+    item = items[0]
+
     try:
         model.soft_delete(session, pk)
         logger.info(
             f"L'entité {entity_name} avec l'id={pk} est supprimé")
         return True
-    except Exception as e:
+    except (ValueError, TypeError) as e:
         session.rollback()
-        session.refresh(item)
-        logger.exception(e)
+        logger.warning(
+            f"Erreur métier lors de la suppression de {entity_name} id={pk}:"
+            f" {e}")
         return renderer.render_template(
             f"{entity_name}_delete.html",
-            {
-                "user": user,
-                entity_name[:-1]: item[0],
-                "error": f"Erreur lors de la suppression : {str(e)}"
-            })
+            {"user": user, "error": str(e), entity_name[:-1]: item}
+        )
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        logger.error(
+            f"Erreur SQL lors de la suppression de {entity_name} id={pk}: {e}")
+        return renderer.render_template(
+            f"{entity_name}_delete.html",
+            {"user": user, "error": "Erreur technique en base de données",
+             entity_name[:-1]: item}
+        )
 
 
 @login_required
@@ -716,6 +756,11 @@ def client_contact_view(client_id: int, **kwargs) -> Union[bool, str]:
         Union[bool, str]:
             - True if the update is successful.
             - Rendered template string with error message otherwise.
+
+    Raises:
+        ValueError: If the client does not exist or if the business data is invalid.
+        TypeError: If the data has an incorrect type (ex: wrong date).
+        SQLAlchemyError: If a database error occurs during the commit.
     """
 
     user = kwargs.get("user")
@@ -734,18 +779,36 @@ def client_contact_view(client_id: int, **kwargs) -> Union[bool, str]:
     client = clients[0]
     try:
         client.last_contact_date = datetime.today().date()
+        client.validate_all(session)
         client.save(session)
         return True
-    except Exception as e:
-        logger.exception(e)
+    except (ValueError, TypeError) as e:
+        logger.warning(f"Erreur de validation : {e}")
         return renderer.render_template(
             "clients_detail.html",
             {
                 "user": user,
+                "with_sorting": False,
+                "user_can": user_can,
                 "client": client,
                 "clients": [client],
-                "error": f"Erreur : {str(e)}"
+                "error": f"Erreur de validation : {str(e)}"
             })
+
+    except SQLAlchemyError as e:
+        logger.error(f"Erreur base de données : {e}")
+        session.rollback()
+        return renderer.render_template(
+            "clients_detail.html",
+            {
+                "user": user,
+                "with_sorting": False,
+                "user_can": user_can,
+                "client": client,
+                "clients": [client],
+                "error": "Erreur technique lors de la sauvegarde."
+            })
+
 
 routes = {
     "/": home,
