@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from sqlalchemy.orm import Session
 
@@ -55,24 +55,24 @@ def load_data_in_database(session: Session):
                    email="jean@nova.com",
                    phone="0102030405",
                    company_name="Entreprise Nova",
-                   created_date=date.today(),
-                   last_contact_date=date.today(),
+                   created_date=date(2025, 3, 25),
+                   last_contact_date=date(2025, 3, 25),
                    id_commercial=collaborators[3].id),
 
             Client(full_name="Sophie Durant",
                    email="sophie@techline.com",
                    phone="0605040302",
                    company_name="Techline SARL",
-                   created_date=date.today(),
-                   last_contact_date=date.today(),
+                   created_date=date(2025, 4, 1),
+                   last_contact_date=date(2025, 4, 1),
                    id_commercial=collaborators[2].id),
 
             Client(full_name="Marc Petit",
                    email="marc@alphacorp.com",
                    phone="0758493021",
                    company_name="AlphaCorp",
-                   created_date=date.today(),
-                   last_contact_date=date.today(),
+                   created_date=date(2025, 4, 15),
+                   last_contact_date=date(2025, 4, 15),
                    id_commercial=collaborators[3].id),
         ]
         session.add_all(clients)
@@ -81,26 +81,32 @@ def load_data_in_database(session: Session):
         # Contracts
         contracts = [
             Contract(total_amount="10000", amount_due="0",
-                     created_date=date.today() - timedelta(days=60),
+                     created_date=date(2025, 4, 15),
                      signed=True, client_id=clients[0].id),
+
             Contract(total_amount="8500", amount_due="0",
-                     created_date=date.today() - timedelta(days=45),
+                     created_date=date(2025, 4, 25),
                      signed=True, client_id=clients[1].id),
+
             Contract(total_amount="12000", amount_due="0",
-                     created_date=date.today() - timedelta(days=30),
+                     created_date=date(2025, 5, 8),
                      signed=True, client_id=clients[2].id),
+
             Contract(total_amount="15000", amount_due="0",
-                     created_date=date.today() - timedelta(days=15),
+                     created_date=date(2025, 5, 30),
                      signed=True, client_id=clients[0].id),
+
             Contract(total_amount="9500", amount_due="0",
-                     created_date=date.today() - timedelta(days=10),
+                     created_date=date(2025, 6, 3),
                      signed=True, client_id=clients[1].id),
+
             Contract(total_amount="6000", amount_due="6000",
-                     created_date=date.today() - timedelta(days=5),
+                     created_date=date(2025, 7, 13),
                      signed=True, client_id=clients[2].id),
+
             Contract(total_amount="11000", amount_due="11000",
-                     created_date=date.today(), signed=False,
-                     client_id=clients[0].id),
+                     created_date=date(2025, 7, 18),
+                     signed=False, client_id=clients[0].id),
         ]
         session.add_all(contracts)
         session.flush()
@@ -109,35 +115,40 @@ def load_data_in_database(session: Session):
         today = date.today()
         events = [
             Event(title="Conférence TechNova",
-                  start_date=today - timedelta(days=40),
-                  end_date=today - timedelta(days=38),
+                  start_date="08-06-2025 09:00",
+                  end_date="10-06-2025 18:00",
                   location="Paris", participants=150,
                   notes="Conférence terminée avec succès.",
                   contract_id=contracts[0].id,
                   support_id=collaborators[5].id),
+
             Event(title="Salon des Innovations",
-                  start_date=today - timedelta(days=30),
-                  end_date=today - timedelta(days=28),
+                  start_date="18-06-2025 10:00",
+                  end_date="20-06-2025 17:00",
                   location="Lyon", participants=200,
                   notes="Salon très fréquenté.",
                   contract_id=contracts[1].id,
                   support_id=collaborators[4].id),
+
             Event(title="Séminaire Alpha",
-                  start_date=today - timedelta(days=20),
-                  end_date=today - timedelta(days=18),
+                  start_date="28-06-2025 08:30",
+                  end_date="30-06-2025 17:30",
                   location="Bordeaux", participants=100,
                   notes="Retour très positif.",
                   contract_id=contracts[2].id,
                   support_id=collaborators[5].id),
-            Event(title="Forum Digital", start_date=today + timedelta(days=5),
-                  end_date=today + timedelta(days=6),
+
+            Event(title="Forum Digital",
+                  start_date="23-07-2025 09:00",
+                  end_date="24-07-2025 17:00",
                   location="Marseille", participants=80,
                   notes="Préparation en cours.",
                   contract_id=contracts[3].id,
                   support_id=collaborators[4].id),
+
             Event(title="Atelier Startups",
-                  start_date=today + timedelta(days=10),
-                  end_date=today + timedelta(days=11),
+                  start_date="28-07-2025 14:00",
+                  end_date="29-07-2025 18:00",
                   location="Nice", participants=120,
                   notes="Inscription ouverte.",
                   contract_id=contracts[4].id,
@@ -222,8 +233,12 @@ def load_test_data_in_database(session: Session):
     if not existing_event:
         event = Event(
             title="Annual Gala",
-            start_date=date.today() + timedelta(days=10),
-            end_date=date.today() + timedelta(days=11),
+            start_date=datetime.combine(date.today() + timedelta(days=10),
+                                        datetime.strptime("19:00",
+                                                          "%H:%M").time()),
+            end_date=datetime.combine(date.today() + timedelta(days=11),
+                                      datetime.strptime("01:00",
+                                                        "%H:%M").time()),
             location="Paris",
             participants=100,
             notes="Formal event",

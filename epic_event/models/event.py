@@ -2,12 +2,13 @@
 import logging
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, relationship
 
-from epic_event.models import Collaborator, Contract, Entity
+from epic_event.models import Collaborator, Contract
 from epic_event.models.base import Base
+from epic_event.models.entity import Entity
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +34,8 @@ class Event(Base, Entity):
 
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
-    start_date = Column(Date, nullable=False)
-    end_date = Column(Date, nullable=False)
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=False)
     location = Column(String)
     participants = Column(Integer, default=0)
     notes = Column(Text)
@@ -48,11 +49,11 @@ class Event(Base, Entity):
 
     @property
     def formatted_start_date(self):
-        return self.start_date.strftime("%d/%m/%Y")
+        return self.start_date.strftime("%d/%m/%Y %H:%M")
 
     @property
     def formatted_end_date(self):
-        return self.end_date.strftime("%d/%m/%Y")
+        return self.end_date.strftime("%d/%m/%Y %H:%M")
 
     @staticmethod
     def _validate_title(title: Column[str]) -> None:
@@ -74,28 +75,29 @@ class Event(Base, Entity):
         Validate the start and end dates of the event.
 
         Raises:
-            ValueError: If dates are missing, not of type `date`, or start > end.
+            ValueError: If dates are not of type `datetime` or in the expected string format,
+                        or if start_date > end_date.
         """
-        for value in (self.start_date, self.end_date):
-            if isinstance(value, date):
-                continue
-            elif isinstance(value, str):
+        def parse_strict_datetime(value):
+            if isinstance(value, datetime):
+                return value
+            if isinstance(value, str):
                 try:
-                    value = datetime.strptime(value.strip(), "%d-%m-%Y").date()
+                    return datetime.strptime(value.strip(), "%d-%m-%Y %H:%M")
                 except ValueError:
-                    error = f"Date invalide ou au mauvais format (attendu : JJ-MM-AAAA) : {value}"
+                    error = f"Date invalide ou au mauvais format (attendu : JJ-MM-AAAA HH:MM) : {value}"
                     logger.exception(error)
                     raise ValueError(error)
-            else:
-                error = "La date doit être une instance de `date` ou une chaîne."
-                logger.exception(error)
-                raise ValueError(error)
+            raise ValueError(
+                "La date doit être une instance de `datetime` ou une chaîne au format attendu.")
+
+        self.start_date = parse_strict_datetime(self.start_date)
+        self.end_date = parse_strict_datetime(self.end_date)
 
         if self.start_date > self.end_date:
-            error = "Start date cannot be after end date."
+            error = "La date de début ne peut pas être postérieure à la date de fin."
             logger.exception(error)
             raise ValueError(error)
-
 
     @staticmethod
     def _validate_participants(number: Column[int]) -> None:
