@@ -7,8 +7,8 @@ from typing import Optional, Union
 from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String
 from sqlalchemy.orm import Session, relationship
 
-from epic_event.models import Entity
 from epic_event.models.base import Base
+from epic_event.models.entity import Entity
 
 logger = logging.getLogger(__name__)
 
@@ -48,10 +48,12 @@ class Client(Base, Entity):
 
     @property
     def formatted_created_date(self):
+        """ Formatted date into european format"""
         return self.created_date.strftime("%d/%m/%Y")
 
     @property
     def formatted_last_contact_date(self):
+        """ Formatted date into european format"""
         return self.last_contact_date.strftime("%d/%m/%Y")
 
     # session is used by the validate_all method of other models.

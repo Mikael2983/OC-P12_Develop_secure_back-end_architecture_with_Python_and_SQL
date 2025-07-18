@@ -5,8 +5,9 @@ from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, relationship
 
-from epic_event.models import Client, Entity
+from epic_event.models import Client
 from epic_event.models.base import Base
+from epic_event.models.entity import Entity
 
 logger = logging.getLogger(__name__)
 

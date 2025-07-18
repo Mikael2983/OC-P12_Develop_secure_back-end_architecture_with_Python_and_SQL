@@ -9,7 +9,6 @@ from epic_event.models.utils import load_data_in_database
 __all__ = ["Database",
            "SESSION_CONTEXT",
            "load_data_in_database",
-           "Entity",
            "Collaborator",
            "Client",
            "Contract",
