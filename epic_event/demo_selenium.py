@@ -37,7 +37,8 @@ def logout(driver):
 
 # Connexion gestionnaire
 driver.get("http://localhost:8000")
-print("voici la page d’accueil du server CRM, design sobre minimaliste, le front-end n’étant pas du tout l’objectif ici. ")
+print("voici la page d’accueil du server CRM, design sobre minimaliste, "
+      "le front-end n’étant pas du tout l’objectif ici. ")
 
 input("appuyer sur enter pour continuer")
 print("Connexion de l’utilisatrice Alice du service gestion.")

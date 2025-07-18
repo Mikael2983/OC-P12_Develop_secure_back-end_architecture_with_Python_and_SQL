@@ -1,3 +1,17 @@
+"""
+settings.py - Application configuration module.
+
+Defines:
+- Entity mappings for CRUD operations.
+- Database configurations for different environments.
+- Application port settings.
+- Sentry DSN for error tracking.
+- Logging configuration with console and Sentry handlers.
+
+Provides:
+- setup_logging() function to initialize logging.
+"""
+
 import logging
 import logging.config
 

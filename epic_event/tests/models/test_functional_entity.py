@@ -16,7 +16,7 @@ def test_filter_by_fields_functional(db_session, seed_data_collaborator):
     assert result[0].email == "alice@example.com"
 
 
-def test_soft_delete_functional(db_session, seed_data_collaborator):
+def test_soft_delete_functional(db_session):
     active_collaborators = db_session.query(Collaborator).filter_by(archived=False).all()
     names = [c.full_name for c in active_collaborators]
 

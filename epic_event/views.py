@@ -1,6 +1,6 @@
 import logging
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, time
 from typing import Any, Dict, Union
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -80,7 +80,7 @@ def login(db: Session, data: Dict[str, list[str]]) -> dict:
 
 
 @login_required
-def logout(*args, **kwargs) -> str:
+def logout(**kwargs) -> str:
     """Log out the current user by deleting session ID from cookie.
 
     Returns:
@@ -209,7 +209,7 @@ def entity_list_view(query_params: Dict[str, list[str]],
     model = get_model(entity_name)
 
     if not model:
-        logger.exception(f"Entité inconnue: {entity_name}")
+        logger.exception("Entité inconnue: %s", entity_name)
         return renderer.render_template(
             "index.html",
             {
@@ -229,7 +229,7 @@ def entity_list_view(query_params: Dict[str, list[str]],
         if entity_name == "collaborators":
             items = [item for item in items if item.role != "admin"]
     except (AttributeError, ValueError) as e:
-        logger.warning(f"Erreur de tri : {e}")
+        logger.warning("Erreur de tri : %s", e)
         return renderer.render_template(
             "index.html",
             {
@@ -238,7 +238,7 @@ def entity_list_view(query_params: Dict[str, list[str]],
             })
 
     except SQLAlchemyError as e:
-        logger.error(f"Erreur SQL : {e}")
+        logger.error("Erreur SQL : %s", e)
         return renderer.render_template(
             "index.html",
             {
@@ -287,7 +287,7 @@ def entity_detail_view(pk: int, **kwargs) -> str:
 
     model = get_model(entity_name)
     if not model:
-        logger.exception(f"Entité inconnue: {entity_name}")
+        logger.exception("Entité inconnue: %s", entity_name)
         return renderer.render_template(
             "index.html",
             {
@@ -303,7 +303,7 @@ def entity_detail_view(pk: int, **kwargs) -> str:
                                    )
     if not items:
         logger.exception(
-            f"L'entité {entity_name} avec l'id={pk} est introuvable")
+            "L'entité %s avec l'id=%s est introuvable", entity_name, pk)
         return renderer.render_template(
             "index.html",
             {
@@ -413,7 +413,7 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[
     model = get_model(entity_name)
 
     if not model:
-        logger.exception(f"Entité inconnue: {entity_name}")
+        logger.exception("Entité inconnue: %s", entity_name)
         return renderer.render_template(
             "index.html",
             {
@@ -441,8 +441,13 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[
         instance = model(**data)
 
     elif entity_name == "events":
-        data["start_date"] = date.fromisoformat(data["start_date"])
-        data["end_date"] = date.fromisoformat(data["end_date"])
+        start_date = date.fromisoformat(data["start_date"])
+        start_time = time.fromisoformat(data["start_time"])
+        end_date = date.fromisoformat(data["end_date"])
+        end_time = time.fromisoformat(data["end_time"])
+
+        data["start_date"] = datetime.combine(start_date, start_time)
+        data["end_date"] = datetime.combine(end_date, end_time)
         data["participants"] = int(data["participants"])
         data["contract_id"] = int(data["contract_id"])
         instance = model(**data)
@@ -457,13 +462,13 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[
     except (ValueError, TypeError, SQLAlchemyError) as e:
         session.rollback()
         logger.warning(
-            f"Erreur lors de la création d’un {entity_name} : {e}")
+            "Erreur lors de la création d’un %s : %s.", entity_name, e)
         return renderer.render_template(
             f"{entity_name}_create.html",
             {"user": user, "error": str(e)}
         )
 
-    logger.info(f"Entité créée : {instance}")
+    logger.info("Entité créée : %s.", instance)
     return True
 
 
@@ -496,7 +501,7 @@ def entity_update_view(pk: int, **kwargs) -> str:
 
     model = get_model(entity_name)
     if not model:
-        logger.exception(f"Entité inconnue: {entity_name}")
+        logger.exception("Entité inconnue: %s.", entity_name)
         return renderer.render_template(
             "index.html",
             {
@@ -516,7 +521,8 @@ def entity_update_view(pk: int, **kwargs) -> str:
     }
     if not items:
         logger.exception(
-            f"L'entité {entity_name} avec l'id={pk} est introuvable")
+            "L'entité %s entity_name avec l'id= %s pk est introuvable",
+            entity_name, pk)
         context["error"] = f"{entity_name.capitalize()} introuvable"
 
         return renderer.render_template("index.html",
@@ -569,10 +575,9 @@ def entity_update_post_view(pk: int,
 
     model = get_model(entity_name)
     if not model:
-        logger.exception(f"Entité inconnue: {entity_name}")
+        logger.exception("Entité inconnue: %s.", entity_name)
         return renderer.render_template(
             "index.html",
-
             {
                 "user": user,
                 "error": "Entité inconnue"})
@@ -585,7 +590,8 @@ def entity_update_post_view(pk: int,
                                    )
     if not items:
         logger.exception(
-            f"L'entité {entity_name} avec l'id={pk} est introuvable")
+            "L'entité %s avec l'id=%s est introuvable",
+            entity_name, pk)
         return renderer.render_template(
             "index.html",
             {
@@ -598,13 +604,15 @@ def entity_update_post_view(pk: int,
     try:
         instance.update(session, **data)
         instance.save(session)
-        logger.info(f"L'entité {entity_name} avec l'id={pk} est mis à jour")
+        logger.info("L'entité %s avec l'id=%s est mis à jour",
+                    entity_name, pk)
         return True
 
     except (ValueError, TypeError) as e:
         session.rollback()
         logger.warning(
-            f"Erreur métier lors de la mise à jour de {entity_name} id={pk}: {e}")
+            "Erreur métier lors de la mise à jour de %s id=%s: %s",
+            entity_name, pk, e)
         return renderer.render_template(
             f"{entity_name}_update.html",
             {
@@ -639,7 +647,7 @@ def entity_delete_view(pk, **kwargs) -> bool:
 
     model = get_model(entity_name)
     if not model:
-        logger.exception(f"Entité inconnue: {entity_name}")
+        logger.exception("Entité inconnue: %s.", entity_name)
         return False
 
     items = model.filter_by_fields(session,
@@ -651,7 +659,8 @@ def entity_delete_view(pk, **kwargs) -> bool:
 
     if not items:
         logger.exception(
-            f"L'entité {entity_name} avec l'id={pk} est introuvable")
+            "L'entité %s avec l'id=%s est introuvable",
+            entity_name, pk)
         return False
 
     instance = items[0]
@@ -692,7 +701,7 @@ def entity_delete_post_view(pk: int, **kwargs) -> \
 
     model = get_model(entity_name)
     if not model:
-        logger.exception(f"Entité inconnue: {entity_name}")
+        logger.exception("Entité inconnue: %s.", entity_name)
         return renderer.render_template(
             "index.html",
             {
@@ -704,7 +713,8 @@ def entity_delete_post_view(pk: int, **kwargs) -> \
 
     if not items:
         logger.exception(
-            f"L'entité {entity_name} avec l'id={pk} est introuvable")
+            "L'entité %s avec l'id=%s est introuvable",
+            entity_name, pk)
         return renderer.render_template(
             "index.html",
             {
@@ -717,13 +727,14 @@ def entity_delete_post_view(pk: int, **kwargs) -> \
     try:
         model.soft_delete(session, pk)
         logger.info(
-            f"L'entité {entity_name} avec l'id={pk} est supprimé")
+            "L'entité %s avec l'id=%s est supprimé",
+            entity_name, pk)
         return True
     except (ValueError, TypeError) as e:
         session.rollback()
         logger.warning(
-            f"Erreur métier lors de la suppression de {entity_name} id={pk}:"
-            f" {e}")
+            "Erreur métier lors de la suppression de %s id=%s: %s",
+            entity_name, pk, e)
         return renderer.render_template(
             f"{entity_name}_delete.html",
             {"user": user, "error": str(e), entity_name[:-1]: item}
@@ -732,7 +743,8 @@ def entity_delete_post_view(pk: int, **kwargs) -> \
     except SQLAlchemyError as e:
         session.rollback()
         logger.error(
-            f"Erreur SQL lors de la suppression de {entity_name} id={pk}: {e}")
+            "Erreur SQL lors de la suppression de %s id=%s: %s",
+            entity_name, pk, e)
         return renderer.render_template(
             f"{entity_name}_delete.html",
             {"user": user, "error": "Erreur technique en base de données",
@@ -784,7 +796,7 @@ def client_contact_view(client_id: int, **kwargs) -> Union[bool, str]:
         client.save(session)
         return True
     except (ValueError, TypeError) as e:
-        logger.warning(f"Erreur de validation : {e}")
+        logger.warning("Erreur de validation : %s.",e)
         return renderer.render_template(
             "clients_detail.html",
             {
@@ -797,7 +809,7 @@ def client_contact_view(client_id: int, **kwargs) -> Union[bool, str]:
             })
 
     except SQLAlchemyError as e:
-        logger.error(f"Erreur base de données : {e}")
+        logger.error("Erreur base de données : %s.", e)
         session.rollback()
         return renderer.render_template(
             "clients_detail.html",

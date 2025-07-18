@@ -1,3 +1,23 @@
+"""
+router.py - Custom HTTP request handler and router.
+
+This module defines a custom handler class (`MyHandler`) based on Python's
+`BaseHTTPRequestHandler`. It handles routing of HTTP GET and POST requests
+to various view functions of the application.
+
+Main Responsibilities:
+- Dispatches requests to entity-specific CRUD views (list, detail, create,
+    update, delete).
+- Manages authentication routes (login, logout).
+- Serves static files from the `/static/` directory.
+- Handles collaborator password management and client contact marking.
+- Manages session-based actions like archive display toggling.
+
+Usage:
+This module is used as the HTTP entry point of the application.
+It connects HTTP requests to the relevant business logic in `views`.
+
+"""
 import logging
 import mimetypes
 import os
@@ -19,6 +39,10 @@ logger = logging.getLogger(__name__)
 
 
 class MyHandler(BaseHTTPRequestHandler):
+    """
+    Custom HTTP handler for routing and processing application requests.
+    Handles CRUD operations, authentication, and static files.
+    """
     session = None
     database = None
 

@@ -46,7 +46,7 @@ Repository/
     │   ├── router.py           # Custom HTTP Routing
     │   ├── settings.py         # Configuration parameters (port, DB, constants)
     │   └── views.py            # Business logic and validation
-    ├── server.py               # Custom HTTP server
+    ├── main.py               # Custom HTTP server
     ├── README.md
     ├── requirements.txt
     └── Schémas_BDD_Epic_Event.pdf  # schemas of the database
@@ -123,18 +123,18 @@ To see the data used for Pytest and Selenium tests,
 
 On the terminal enter following command to start the server::
 ```bash
-python server.py test
+python main.py test
 ```
 
 To discover the application's features, enter following command to start the server:
 ```bash
-python server.py demo
+python main.py demo
 ```
 
 For your own usage, enter following command to start the server:
 
 ```bash
-python server.py
+python main.py
 ```
 ### 6. Start the Webapp
 

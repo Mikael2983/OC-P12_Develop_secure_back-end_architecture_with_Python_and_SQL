@@ -1,3 +1,13 @@
+"""
+Permissions management module for Epic Event CRM.
+
+This module provides the decorators and functions for:
+- Verify the authentication of a user (login_required)
+- Check access permissions according to roles and entities (has_permission, user_can)
+
+The available roles are: admin, gestion, support, commercial.
+The managed entities are: collaborators, clients, contracts, events.
+"""
 import re
 from functools import wraps
 from typing import TypeAlias, Union
@@ -40,6 +50,19 @@ renderer = TemplateRenderer()
 
 
 def login_required(func):
+    """
+        Decorator to verify that the user is authenticated.
+
+        Checks for a valid session cookie. If the session is invalid
+        or absent, returns the homepage with an error message.
+        If session is valid, inject user and session ID into kwargs.
+
+        Args:
+            func (callable): The view function to protect.
+
+        Returns:
+            callable: The decorated function.
+        """
     def wrapper(*args, **kwargs):
         headers = kwargs.get("headers", {})
         cookie = headers.get("Cookie", "")
@@ -54,8 +77,9 @@ def login_required(func):
 
         current_session = SESSION_CONTEXT.get(session_id, None)
         if not current_session:
-            return renderer.render_template("index.html", {
-                "error": "veuillez vous identifier"})
+            return renderer.render_template(
+                "index.html",
+                {"error": "veuillez vous identifier"})
 
         user = SESSION_CONTEXT.get(session_id).get("user", None)
 

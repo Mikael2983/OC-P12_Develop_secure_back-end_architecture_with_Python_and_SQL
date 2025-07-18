@@ -13,7 +13,6 @@ import re
 from collections.abc import Iterable
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from sentry_sdk import capture_exception
 
 TemplatePart = Union[str, Any]
 Context = Dict[str, Any]
@@ -42,7 +41,7 @@ class TemplateRenderer:
     """Template rendering engine using custom tag syntax."""
 
     def __init__(self, template_dir: str = "epic_event/templates",
-                 tag_dir: str = f"epic_event/templates/templates_tag"):
+                 tag_dir: str = "epic_event/templates/templates_tag"):
         """Initializes the renderer with template and tag directories.
 
         Args:
