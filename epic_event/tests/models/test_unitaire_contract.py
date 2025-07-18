@@ -65,6 +65,6 @@ def test_contract_save_invalid_signed(db_session, seed_data_contract):
         contract.signed = "notabool"
         with db_session.no_autoflush:
             contract.validate_all(db_session)
-            assert contract.signed == False
+            assert contract.signed is False
     finally:
         db_session.rollback()

@@ -41,6 +41,7 @@ class Contract(Base, Entity):
 
     @property
     def formatted_created_date(self):
+        """ Formatted date into european format"""
         return self.created_date.strftime("%d/%m/%Y")
 
     @staticmethod

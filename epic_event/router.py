@@ -53,6 +53,12 @@ class MyHandler(BaseHTTPRequestHandler):
         pass
 
     def parsed_url(self):
+        """
+            Analyze the request URL.
+
+            Returns:
+                tuple: The path of the URL and the query parameters as a dictionary.
+            """
         parsed = urlparse(self.path)
         return parsed.path, parse_qs(parsed.query)
 
@@ -153,6 +159,13 @@ class MyHandler(BaseHTTPRequestHandler):
         return self.dispatch_route("POST")
 
     def _send_html(self, content, headers=None):
+        """
+            Sends an HTTP response with HTML content.
+
+            Args:
+                content (str): The HTML content to send.
+                headers (dict, optional): Additional HTTP headers to be added.
+            """
         self.send_response(200)
         self.send_header("Content-type", "text/html; charset=utf-8")
         if headers:
@@ -162,6 +175,13 @@ class MyHandler(BaseHTTPRequestHandler):
         self.wfile.write(content.encode("utf-8"))
 
     def _redirect(self, path="/", headers=None):
+        """
+            Sends an HTTP redirect (302) response to the specified URL.
+
+            Args:
+                path (str, optional): Destination path or URL. Default "/".
+                headers (dict, optional): Additional HTTP headers to be added.
+            """
         self.send_response(302)
         self.send_header("Location", path)
         if headers:
@@ -170,6 +190,15 @@ class MyHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def serve_static_file(self):
+
+        """
+        Serves a static file from the 'static' directory.
+
+        Sends the content of the requested file with the appropriate MIME type.
+        If the file is missing, returns a 404 error.
+
+        """
+
         static_dir = os.path.join(os.path.dirname(__file__), "static")
         relative_path = self.path[
                         len("/static/"):]
@@ -186,10 +215,22 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_error(404, f"Fichier statique non trouvé : {self.path}")
 
     def handle_home(self):
+        """
+        Handles the request for the home page.
+
+        Retrieve the content via the function associated with the route "/" and send it in HTML.
+        """
         content = routes["/"]()
         self._send_html(content)
 
     def handle_login(self):
+        """
+        Processes the submission of the login form.
+
+        Reads the POST data, tries to authenticate the user,
+        then redirects to the collaborators page if success,
+        or returns the login page with an error message otherwise.
+        """
         content_length = int(self.headers.get('Content-Length', 0))
         post_data = self.rfile.read(content_length)
         post_params = urllib.parse.parse_qs(post_data.decode('utf-8'))
@@ -207,14 +248,24 @@ class MyHandler(BaseHTTPRequestHandler):
             self._send_html(result["html"])
 
     def handle_logout(self):
+        """
+        Handles user logout.
 
+        Calls the logout function to clear the session, then redirects
+        to the home page while deleting the session cookie.
+        """
         logout(headers=self.headers)
         self._redirect(headers={
             "Set-Cookie": "session_id=deleted; Path=/; Max-Age=0"
         })
 
     def handle_collaborator_password_get(self, pk):
+        """
+        Handles GET request to display the password change form for a collaborator.
 
+        Args:
+            pk (int): The primary key (ID) of the collaborator.
+        """
         content = collaborator_password_view(pk,
                                              entity_name="collaborators",
                                              session=self.session,
@@ -222,7 +273,16 @@ class MyHandler(BaseHTTPRequestHandler):
         self._send_html(content)
 
     def handle_entity_list(self, entity, query_params):
+        """
+        Handles the request to list entities.
 
+        Args:
+            entity (str): Name of the entity to list.
+            query_params (dict): Query parameters from the URL.
+
+        Sends the rendered HTML list if the entity is known,
+        otherwise returns a 404 error.
+        """
         if entity in entities:
 
             content = entity_list_view(query_params,
@@ -235,8 +295,18 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_error(404, f"Entité inconnue : {entity}")
 
     def handle_entity_detail(self, entity, pk):
+        """
+        Handles the request to display details of a specific entity item.
 
+        Args:
+            entity (str): Name of the entity.
+            pk (int): Primary key (ID) of the entity item.
+
+        Sends the rendered HTML detail view if the entity is known,
+        otherwise returns a 404 error.
+        """
         if entity in entities:
+
             content = entity_detail_view(pk,
                                          session=self.session,
                                          entity_name=entity,
@@ -246,8 +316,17 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_error(404, f"Entité inconnue : {entity}")
 
     def handle_entity_create(self, entity, query_params):
+        """
+        Handles the request to display the creation form for a new entity.
 
+        Args:
+            entity (str): Name of the entity to create.
+            query_params (dict): Query parameters from the URL.
+
+        Sends the rendered HTML form for entity creation if the entity is known.
+        """
         if entity in entities:
+
             content = entity_create_view(query_params,
                                          session=self.session,
                                          entity_name=entity,
@@ -256,8 +335,18 @@ class MyHandler(BaseHTTPRequestHandler):
             self._send_html(content)
 
     def handle_entity_delete(self, entity, pk):
+        """
+        Handles the deletion of a specific entity item.
 
+        Args:
+            entity (str): Name of the entity.
+            pk (int): Primary key (ID) of the entity item.
+
+        Redirects to the entity list page upon successful deletion.
+        Returns a 404 error if the entity is unknown.
+        """
         if entity in entities:
+
             content = entity_delete_view(pk,
                                          session=self.session,
                                          entity_name=entity,
@@ -268,7 +357,15 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_error(404, f"Entité inconnue : {entity}")
 
     def handle_collaborator_password_post(self, pk):
+        """
+        Handles POST request to update a collaborator's password.
 
+        Reads and parses form data from the request, processes the password
+        update via the corresponding view, and sends back the resulting HTML.
+
+        Args:
+            pk (int): Primary key (ID) of the collaborator.
+        """
         entity = "collaborators"
         content_length = int(self.headers.get('Content-Length', 0))
         post_data = self.rfile.read(content_length)
@@ -282,9 +379,19 @@ class MyHandler(BaseHTTPRequestHandler):
         self._send_html(content)
 
     def handle_entity_create_post(self, entity):
+        """
+        Handles POST request to create a new entity.
 
+        Args:
+            entity (str): Name of the entity to create.
+
+        Parses form data from the request and processes creation via the
+        corresponding view. Redirects to the entity list on success,
+        otherwise sends back the HTML with errors.
+
+        """
         if entity not in entities:
-            return self.send_error(
+            self.send_error(
                 404,
                 f"Entité inconnue : {entity}")
 
@@ -304,9 +411,19 @@ class MyHandler(BaseHTTPRequestHandler):
             self._send_html(result)
 
     def handle_entity_delete_post(self, entity, pk):
+        """
+        Handles POST request to delete a specific entity item.
 
+        Args:
+            entity (str): Name of the entity.
+            pk (int): Primary key (ID) of the entity item.
+
+        Calls the delete view and redirects to the entity list on success.
+        If deletion fails, sends back the HTML response with errors.
+
+        """
         if entity not in entities:
-            return self.send_error(
+            self.send_error(
                 404,
                 f"Entité inconnue : {entity}")
 
@@ -321,7 +438,15 @@ class MyHandler(BaseHTTPRequestHandler):
             self._send_html(result)
 
     def handle_client_contact(self, client_id):
+        """
+        Handles client contact updates.
 
+        Args:
+            client_id (int): The ID of the client.
+
+        Calls the client contact view and redirects to the client detail page
+        on success; otherwise, sends back the HTML response with errors.
+        """
         result = client_contact_view(client_id,
                                      session=self.session,
                                      entity_name="clients",
@@ -334,7 +459,16 @@ class MyHandler(BaseHTTPRequestHandler):
             self._send_html(result)
 
     def handle_entity_update(self, entity_name, pk):
+        """
+        Handles the request to display the update form for a specific entity item.
 
+        Args:
+            entity_name (str): Name of the entity.
+            pk (int): Primary key (ID) of the entity item.
+
+        Sends the rendered HTML update form if the entity is known,
+        otherwise returns a 404 error.
+        """
         if entity_name in entities:
             content = entity_update_view(pk,
                                          session=self.session,
@@ -345,9 +479,19 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_error(404, f"Entité inconnue : {entity_name}")
 
     def handle_entity_update_post(self, entity_name, pk):
+        """
+        Handles POST request to update a specific entity item.
 
+        Args:
+            entity_name (str): Name of the entity.
+            pk (int): Primary key (ID) of the entity item.
+
+        Parses form data and processes the update via the corresponding view.
+        Redirects to the entity detail page on success,
+        otherwise sends back the HTML response with errors.
+        """
         if entity_name not in entities:
-            return self.send_error(
+            self.send_error(
                 404,
                 f"Entité inconnue : {entity_name}")
 
@@ -368,7 +512,13 @@ class MyHandler(BaseHTTPRequestHandler):
             self._send_html(result)
 
     def handle_toggle_archive_display(self):
+        """
+        Toggles the display of archived items for the current user session.
 
+        Reads the 'show_archived' parameter from the POST request body,
+        updates the user's session setting accordingly,
+        then redirects back to the referring page.
+        """
         content_length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(content_length).decode()
         params = urllib.parse.parse_qs(body)

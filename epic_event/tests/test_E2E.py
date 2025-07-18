@@ -232,7 +232,9 @@ def test_Events_create_post(driver):
     time.sleep(2)
     driver.find_element(By.ID, "title").send_keys("Conférence Test 2025")
     driver.find_element(By.ID, "start_date").send_keys("01-08-2025")
+    driver.find_element(By.ID, "start_time").send_keys("09:00")
     driver.find_element(By.ID, "end_date").send_keys("02-08-2025")
+    driver.find_element(By.ID, "end_time").send_keys("18:00")
     driver.find_element(By.ID, "location").send_keys(
         "Paris Expo Porte de Versailles")
     driver.find_element(By.ID, "participants").send_keys("200")
@@ -351,6 +353,7 @@ def test_event_update_post_view(db_session, driver):
     time.sleep(2)
     driver.get("http://localhost:5000/events/1/update")
     time.sleep(2)
+
     driver.find_element(By.ID, "participants").send_keys("250")
     driver.find_element(By.XPATH, "//button[@type='submit']").click()
     time.sleep(2)

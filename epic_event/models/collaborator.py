@@ -115,7 +115,7 @@ class Collaborator(Base, Entity):
 
         except SQLAlchemyError as e:
             logger.exception(
-                f"Database error during email validation: {e}")
+                "Database error during email validation: %s.", e)
             raise
 
     @staticmethod

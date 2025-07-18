@@ -1,3 +1,39 @@
+"""
+Entity ORM Utilities Module.
+
+This module provides a reusable base class `Entity` for SQLAlchemy ORM models.
+It encapsulates common operations such as:
+
+- Filtering records based on nested field relationships (with `__` syntax).
+- Sorting by both simple and nested attributes using dot notation.
+- Validating and persisting changes with robust error handling.
+- Soft-deleting records by toggling an `archived` flag.
+- Resolving dotted field paths for deeply nested attribute access.
+
+Classes:
+    Entity: Abstract base class for domain models that provides high-level
+            database operations.
+
+Typical usage example:
+
+    class Client(Entity, Base):
+        __tablename__ = "clients"
+        id = Column(Integer, primary_key=True)
+        name = Column(String)
+        archived = Column(Boolean, default=False)
+
+        def validate_all(self, db):
+            ...
+
+    # Then you can use:
+    clients = Client.filter_by_fields(session, name="John")
+    clients = Client.order_by_fields(session, "name")
+    client.update(session, name="Jane Doe")
+    client.save(session)
+    Client.soft_delete(session, client_id)
+
+"""
+
 import logging
 from typing import Any, Dict, List
 
@@ -175,7 +211,7 @@ class Entity:
             db.add(self)
             db.commit()
         except SQLAlchemyError as e:
-            logger.exception(f"database error occurs during save: {e}")
+            logger.exception("database error occurs during save: %s.", e)
             db.rollback()
             raise
 

@@ -37,7 +37,10 @@ def test_archived_client_excluded(db_session, seed_data_client):
 
 
 
-def test_client_persists_if_collaborator_soft_deleted(seed_data_collaborator, seed_data_client, db_session):
+def test_client_persists_if_collaborator_soft_deleted(
+        seed_data_collaborator,
+        seed_data_client, db_session
+):
     commercial = seed_data_collaborator["commercial"]
     client_id = seed_data_client.id
 
