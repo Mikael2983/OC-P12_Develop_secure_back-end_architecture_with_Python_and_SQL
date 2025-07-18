@@ -441,13 +441,11 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[
         instance = model(**data)
 
     elif entity_name == "events":
-        start_date = date.fromisoformat(data["start_date"])
-        start_time = time.fromisoformat(data["start_time"])
-        end_date = date.fromisoformat(data["end_date"])
-        end_time = time.fromisoformat(data["end_time"])
+        data["start_date"] = Event.combine_datetime(data, "start")
+        data.pop("start_time", None)
 
-        data["start_date"] = datetime.combine(start_date, start_time)
-        data["end_date"] = datetime.combine(end_date, end_time)
+        data["end_date"] = Event.combine_datetime(data, "end")
+        data.pop("end_time", None)
         data["participants"] = int(data["participants"])
         data["contract_id"] = int(data["contract_id"])
         instance = model(**data)
@@ -602,6 +600,13 @@ def entity_update_post_view(pk: int,
     instance = items[0]
 
     try:
+        if entity_name == "events":
+            data["start_date"] = Event.combine_datetime(data, "start", instance.start_date)
+            data.pop("start_time", None)
+
+            data["end_date"] = instance.combine_datetime(data, "end", instance.end_date)
+            data.pop("end_time", None)
+
         instance.update(session, **data)
         instance.save(session)
         logger.info("L'entité %s avec l'id=%s est mis à jour",

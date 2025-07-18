@@ -1,6 +1,7 @@
 """Event ORM model with validation, error handling, and relationships."""
 import logging
-from datetime import date, datetime
+from datetime import datetime
+from typing import Dict, Optional
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.exc import SQLAlchemyError
@@ -49,11 +50,63 @@ class Event(Base, Entity):
 
     @property
     def formatted_start_date(self):
+        """ Formatted datetime into european format"""
         return self.start_date.strftime("%d/%m/%Y %H:%M")
 
     @property
+    def formatted_start_time(self):
+        """ Formatted datetime into european format"""
+        return self.start_date.strftime("%H:%M")
+
+    @property
     def formatted_end_date(self):
+        """ Formatted datetime into european format"""
         return self.end_date.strftime("%d/%m/%Y %H:%M")
+
+    @property
+    def formatted_end_time(self):
+        """ Formatted datetime into european format"""
+        return self.end_date.strftime("%H:%M")
+
+    @staticmethod
+    def combine_datetime(data: Dict[str, str],
+                         prefix: str,
+                         fallback: Optional[datetime] = None
+                         ) -> datetime:
+        """
+        Combine a date and time from the data dictionary using a common prefix.
+        Falls back to parts of the provided datetime if either field is missing.
+
+        Args:
+            data (dict): Dictionary containing date and time fields.
+            prefix (str): Field prefix, e.g., 'start' -> 'start_date', 'start_time'.
+            fallback (datetime, optional): Fallback datetime for missing values.
+
+        Returns:
+            datetime: Combined datetime object.
+
+        Raises:
+            ValueError: If a required field is missing and no fallback is provided.
+        """
+        date_key = f"{prefix}_date"
+        time_key = f"{prefix}_time"
+
+        if data.get(date_key):
+            parsed_date = datetime.strptime(data[date_key], "%Y-%m-%d").date()
+        elif fallback:
+            parsed_date = fallback.date()
+        else:
+            raise ValueError(f"Missing required date field: {date_key}")
+
+        if data.get(time_key):
+            parsed_time = datetime.strptime(data[time_key], "%H:%M").time()
+        elif fallback:
+            parsed_time = fallback.time()
+        else:
+            raise ValueError(f"Missing required time field: {time_key}")
+
+        return datetime.combine(parsed_date, parsed_time)
+
 
     @staticmethod
     def _validate_title(title: Column[str]) -> None:
@@ -78,7 +131,7 @@ class Event(Base, Entity):
             ValueError: If dates are not of type `datetime` or in the expected string format,
                         or if start_date > end_date.
         """
-        def parse_strict_datetime(value):
+        def _parse_strict_datetime(value):
             if isinstance(value, datetime):
                 return value
             if isinstance(value, str):
@@ -91,8 +144,8 @@ class Event(Base, Entity):
             raise ValueError(
                 "La date doit être une instance de `datetime` ou une chaîne au format attendu.")
 
-        self.start_date = parse_strict_datetime(self.start_date)
-        self.end_date = parse_strict_datetime(self.end_date)
+        self.start_date = _parse_strict_datetime(self.start_date)
+        self.end_date = _parse_strict_datetime(self.end_date)
 
         if self.start_date > self.end_date:
             error = "La date de début ne peut pas être postérieure à la date de fin."
@@ -135,7 +188,7 @@ class Event(Base, Entity):
         """
         try:
             contracts = Contract.filter_by_fields(db, id=contract_id)
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             raise
 
         if not contracts:

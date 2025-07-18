@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 import pytest
 
@@ -29,17 +29,17 @@ def test_validate_dates_invalid_type_raises(seed_data_event, db_session):
     event.start_date = "2024-01-01",
     event.end_date = "2024-01-02",
     with db_session.no_autoflush:
-        with pytest.raises(ValueError, match='La date doit être une instance de `date` ou une chaîne.'):
+        with pytest.raises(ValueError, match='La date doit être une instance de `datetime` ou une chaîne au format attendu.'):
             event.validate_all(db_session)
     db_session.refresh(event)
 
 
 def test_validate_dates_start_after_end_raises(seed_data_event, seed_data_collaborator, db_session):
     event = seed_data_event
-    event.start_date = date.today() + timedelta(days=1)
-    event.end_date = date.today()
+    event.start_date = datetime.today() + timedelta(days=1)
+    event.end_date = datetime.today()
     with db_session.no_autoflush:
-        with pytest.raises(ValueError, match="Start date cannot be after end date"):
+        with pytest.raises(ValueError, match='La date de début ne peut pas être postérieure à la date de fin.'):
             event.validate_all(db_session)
 
     db_session.refresh(event)

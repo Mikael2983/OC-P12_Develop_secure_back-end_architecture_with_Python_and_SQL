@@ -1,3 +1,34 @@
+"""
+Database Seeding Module for Epic Events.
+
+This module provides helper functions to populate the database with initial or
+test data for development and functional testing purposes. It creates default
+users (collaborators), clients, contracts, and events using SQLAlchemy ORM.
+
+Functions:
+    - load_data_in_database(session): Seeds the database with production-like default data.
+    - load_test_data_in_database(session): Inserts mock/test records for unit and integration testing.
+    - load_super_user(session): Ensures an admin user exists with predefined credentials.
+
+Data includes:
+    - Collaborators: Roles include 'admin', 'gestion', 'commercial', and 'support'.
+    - Clients: Linked to commercial collaborators.
+    - Contracts: Some signed, others pending.
+    - Events: Attached to signed contracts and supported by support collaborators.
+
+Usage:
+    from epic_event.db_seed import load_data_in_database
+    load_data_in_database(session)
+
+Notes:
+    - Existing records are checked to avoid duplication.
+    - `flush()` is used where necessary to populate relationships before inserts.
+    - Passwords are hashed using `set_password()` method of the `Collaborator` model.
+
+Warning:
+    These functions should not be used in production environments unless explicitly required.
+"""
+
 from datetime import date, timedelta, datetime
 
 from sqlalchemy.orm import Session
@@ -115,40 +146,40 @@ def load_data_in_database(session: Session):
         today = date.today()
         events = [
             Event(title="Conférence TechNova",
-                  start_date="08-06-2025 09:00",
-                  end_date="10-06-2025 18:00",
+                  start_date=datetime.strptime("08-06-2025 09:00", "%d-%m-%Y %H:%M"),
+                  end_date=datetime.strptime("10-06-2025 18:00", "%d-%m-%Y %H:%M"),
                   location="Paris", participants=150,
                   notes="Conférence terminée avec succès.",
                   contract_id=contracts[0].id,
                   support_id=collaborators[5].id),
 
             Event(title="Salon des Innovations",
-                  start_date="18-06-2025 10:00",
-                  end_date="20-06-2025 17:00",
+                  start_date=datetime.strptime("18-06-2025 10:00", "%d-%m-%Y %H:%M"),
+                  end_date=datetime.strptime("20-06-2025 17:00","%d-%m-%Y %H:%M"),
                   location="Lyon", participants=200,
                   notes="Salon très fréquenté.",
                   contract_id=contracts[1].id,
                   support_id=collaborators[4].id),
 
             Event(title="Séminaire Alpha",
-                  start_date="28-06-2025 08:30",
-                  end_date="30-06-2025 17:30",
+                  start_date=datetime.strptime("28-06-2025 08:30", "%d-%m-%Y %H:%M"),
+                  end_date=datetime.strptime("30-06-2025 17:30","%d-%m-%Y %H:%M"),
                   location="Bordeaux", participants=100,
                   notes="Retour très positif.",
                   contract_id=contracts[2].id,
                   support_id=collaborators[5].id),
 
             Event(title="Forum Digital",
-                  start_date="23-07-2025 09:00",
-                  end_date="24-07-2025 17:00",
+                  start_date=datetime.strptime("23-07-2025 09:00", "%d-%m-%Y %H:%M"),
+                  end_date=datetime.strptime("24-07-2025 17:00", "%d-%m-%Y %H:%M"),
                   location="Marseille", participants=80,
                   notes="Préparation en cours.",
                   contract_id=contracts[3].id,
                   support_id=collaborators[4].id),
 
             Event(title="Atelier Startups",
-                  start_date="28-07-2025 14:00",
-                  end_date="29-07-2025 18:00",
+                  start_date=datetime.strptime("28-07-2025 14:00", "%d-%m-%Y %H:%M"),
+                  end_date=datetime.strptime("29-07-2025 18:00", "%d-%m-%Y %H:%M"),
                   location="Nice", participants=120,
                   notes="Inscription ouverte.",
                   contract_id=contracts[4].id,
@@ -224,21 +255,27 @@ def load_test_data_in_database(session: Session):
             signed=True,
             client_id=client.id
         )
-        session.add_all([signed_contract, not_signed_contract, contract_with_event])
+        session.add_all([signed_contract,
+                         not_signed_contract,
+                         contract_with_event
+                         ])
         session.commit()
 
     # === Event ===
-    contract_with_event = session.query(Contract).filter_by(total_amount="300", client_id=client.id).first()
-    existing_event = session.query(Event).filter_by(contract_id=contract_with_event.id).first()
+    contract_with_event = session.query(Contract).filter_by(
+        total_amount="300",
+        client_id=client.id
+    ).first()
+
+    existing_event = session.query(Event).filter_by(
+        contract_id=contract_with_event.id
+    ).first()
+
     if not existing_event:
         event = Event(
             title="Annual Gala",
-            start_date=datetime.combine(date.today() + timedelta(days=10),
-                                        datetime.strptime("19:00",
-                                                          "%H:%M").time()),
-            end_date=datetime.combine(date.today() + timedelta(days=11),
-                                      datetime.strptime("01:00",
-                                                        "%H:%M").time()),
+            start_date=datetime.strptime("08-06-2025 09:00", "%d-%m-%Y %H:%M"),
+            end_date=datetime.strptime("10-06-2025 18:00", "%d-%m-%Y %H:%M"),
             location="Paris",
             participants=100,
             notes="Formal event",
@@ -253,7 +290,9 @@ def load_super_user(session):
     admin = session.query(Collaborator).filter_by(
         email="admin@example.com").first()
     if not admin:
-        admin = Collaborator(full_name="Admin User", email="admin@example.com", role="admin")
+        admin = Collaborator(full_name="Admin User",
+                             email="admin@example.com",
+                             role="admin")
         admin.set_password("adminpass")
         session.add(admin)
     session.commit()

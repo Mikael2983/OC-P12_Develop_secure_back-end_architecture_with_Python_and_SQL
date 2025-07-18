@@ -19,8 +19,14 @@
             <label for="start_date">Date de début :{{event.start_date}}</label><br>
             <input type="date" id="start_date" name="start_date"><br><br>
 
+            <label for="start_time">heure de début :{{event.formatted_start_time}}</label><br>
+            <input type="time" id="start_time" name="start_date"><br><br>
+
             <label for="end_date">Date de fin: {{event.end_date}}</label><br>
             <input type="date" id="end_date" name="end_date"><br><br>
+
+            <label for="end_time">Date de fin: {{event.formatted_end_time}}</label><br>
+            <input type="time" id="end_time" name="end_time"><br><br>
 
             <label for="location">Lieu : {{event.location}} </label><br>
             <input type="text" id="location" name="location"><br><br>

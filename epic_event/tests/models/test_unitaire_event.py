@@ -1,9 +1,20 @@
 import re
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 import pytest
 
 from epic_event.models import Event
+
+
+def test_formatted_start_date_property(seed_data_event):
+    event = seed_data_event
+    assert event.formatted_start_date == "08/06/2025 09:00"
+
+
+def test_formatted_end_date_property(seed_data_event):
+    event = seed_data_event
+
+    assert event.formatted_end_date == "10/06/2025 18:00"
 
 
 def test_validate_title_empty_raises(db_session, seed_data_event):
@@ -18,34 +29,91 @@ def test_validate_title_empty_raises(db_session, seed_data_event):
         db_session.refresh(event)
 
 
-def test_validate_dates_invalid_type_raises(db_session, seed_data_event):
-    event = seed_data_event
-
-    try:
-        db_session.begin_nested()
-        event.start_date = "2023-01-01"
-        event.end_date = "2023-01-02"
-        with db_session.no_autoflush:
-            with pytest.raises(ValueError,
-                               match=re.escape('Date invalide ou au mauvais format (attendu : JJ-MM-AAAA) : 2023-01-01')):
-                event.validate_all(db_session)
-    finally:
-        db_session.refresh(event)
+def test_full_data_provided():
+    data = {"start_date": "2025-08-01", "start_time": "09:30"}
+    result = Event.combine_datetime(data, "start")
+    assert result == datetime(2025, 8, 1, 9, 30)
 
 
-def test_validate_dates_start_after_end_raises(db_session, seed_data_event):
-    event = seed_data_event
+def test_missing_time_uses_fallback():
+    fallback = datetime(2025, 8, 1, 14, 45)
+    data = {"start_date": "2025-08-01"}
+    result = Event.combine_datetime(data, "start", fallback=fallback)
+    assert result == datetime(2025, 8, 1, 14, 45)
 
-    try:
-        db_session.begin_nested()
-        event.start_date = date.today() + timedelta(days=5)
-        event.end_date = date.today()
-        with db_session.no_autoflush:
-            with pytest.raises(ValueError,
-                               match="Start date cannot be after end date."):
-                event.validate_all(db_session)
-    finally:
-        db_session.refresh(event)
+
+def test_missing_date_uses_fallback():
+    fallback = datetime(2025, 8, 1, 14, 45)
+    data = {"start_time": "10:00"}
+    result = Event.combine_datetime(data, "start", fallback=fallback)
+    assert result == datetime(2025, 8, 1, 10, 0)
+
+
+def test_missing_both_raises():
+    with pytest.raises(ValueError) as exc_info:
+        Event.combine_datetime({}, "start")
+    assert "Missing required date field" in str(exc_info.value)
+
+
+def test_valid_string_dates():
+    event = Event(
+        title="My Event",
+        start_date="01-08-2025 09:00",
+        end_date="01-08-2025 11:00",
+        contract_id=1
+    )
+    event._validate_dates()
+    assert isinstance(event.start_date, datetime)
+    assert isinstance(event.end_date, datetime)
+
+
+def test_valid_datetime_objects():
+    event = Event(
+        title="My Event",
+        start_date=datetime(2025, 8, 1, 9, 0),
+        end_date=datetime(2025, 8, 1, 11, 0),
+        contract_id=1
+    )
+    event._validate_dates()
+    assert isinstance(event.start_date, datetime)
+
+
+def test_start_after_end_raises():
+    event = Event(
+        title="Wrong Dates",
+        start_date="03-08-2025 10:00",
+        end_date="01-08-2025 09:00",
+        contract_id=1
+    )
+    with pytest.raises(ValueError) as exc_info:
+        event._validate_dates()
+    assert "La date de début ne peut pas être postérieure" in str(
+        exc_info.value)
+
+
+def test_invalid_date_format_raises():
+    event = Event(
+        title="Invalid Format",
+        start_date="2025/08/01 10:00",
+        end_date="01-08-2025 11:00",
+        contract_id=1
+    )
+    with pytest.raises(ValueError) as exc_info:
+        event._validate_dates()
+    assert "Date invalide ou au mauvais format" in str(exc_info.value)
+
+
+def test_invalid_type_raises():
+    event = Event(
+        title="Wrong Type",
+        start_date=123456,
+        end_date="01-08-2025 11:00",
+        contract_id=1
+    )
+    with pytest.raises(ValueError) as exc_info:
+        event._validate_dates()
+    assert "La date doit être une instance de `datetime`" in str(
+        exc_info.value)
 
 
 def test_validate_participants_negative_raises(db_session, seed_data_event):
@@ -86,7 +154,9 @@ def test_validate_contract_not_signed_raises(db_session, seed_data_event,
         event.contract_id = not_signed_contract.id
         with db_session.no_autoflush:
             with pytest.raises(ValueError,
-                               match="The contract must be signed before assigning to an event."):
+                               match="The contract must be signed before "
+                                     "assigning to an event."
+                               ):
                 event.validate_all(db_session)
     finally:
         db_session.refresh(event)
@@ -100,7 +170,9 @@ def test_validate_support_id_not_found_raises(db_session, seed_data_event):
         event.support_id = 9999  # ID inexistant
         with db_session.no_autoflush:
             with pytest.raises(ValueError,
-                               match=f"Collaborator ID {event.support_id} not found."):
+                               match=f"Collaborator ID {event.support_id} not "
+                                     f"found."
+                               ):
                 event.validate_all(db_session)
     finally:
         db_session.refresh(event)
@@ -116,7 +188,9 @@ def test_validate_support_id_invalid_role_raises(db_session, seed_data_event,
         event.support_id = collab.id
         with db_session.no_autoflush:
             with pytest.raises(ValueError,
-                               match="The selected collaborator is not in the 'support' role."):
+                               match="The selected collaborator is not in the "
+                                     "'support' role."
+                               ):
                 event.validate_all(db_session)
     finally:
         db_session.refresh(event)
@@ -138,4 +212,3 @@ def test_save_success(db_session, seed_data_contract):
     assert found is not None
     db_session.delete(found)
     db_session.commit()
-
