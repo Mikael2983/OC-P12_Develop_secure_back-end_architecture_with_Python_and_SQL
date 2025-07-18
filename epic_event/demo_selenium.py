@@ -1,10 +1,9 @@
 import time
 
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
-from selenium.webdriver.chrome.options import Options
-
 
 options = Options()
 options.add_argument("--log-level=3")
@@ -48,34 +47,34 @@ driver.find_element(By.NAME, "password").send_keys("alicepass")
 input("appuyer sur enter pour continuer")
 driver.find_element(By.ID, "login_button").click()
 
-print("Comme tout utilisateur connecté, elle arrive sur la liste des collaborateurs. ")
-print("Les membres du service gestion peuvent voir un bouton 'créer un collaborateur'")
+print("elle arrive sur la liste des collaborateurs. ")
+print("Les membres du service gestion peuvent voir un bouton 'créer un collaborateur'"
+      "elle va cliquer dessus")
 input("appuyer sur enter pour continuer")
 
-print("Création nouveau commercial")
 driver.find_element(By.ID, "create_collab").click()
 print("voici le formulaire pour enregistrer un nouveau collaborateur.")
-time.sleep(1)
+input("appuyer sur enter pour continuer")
+
 driver.find_element(By.ID, "full_name").send_keys("Jean Martin")
 driver.find_element(By.ID, "email").send_keys("jean.martin@epicevent.com")
 driver.find_element(By.ID, "password").send_keys("newpass")
 Select(driver.find_element(By.ID, "service")).select_by_value("commercial")
-time.sleep(1)
+
 print("Après l’avoir rempli et sélectionner le bon service.")
 input("appuyer sur enter pour continuer")
 driver.find_element(By.XPATH, "//button[@type='submit']").click()
 
 print("le collaborateur apparaît dans la liste")
-print("Son adresse mail pro ne correspond pas au standard de la société, changeons cela ")
+print("Son adresse mail pro ne correspond pas au standard de la société")
 print("changeons cela, en cliquant sur le crayon sur la ligne à de son nom")
 # Modifier email
 input("appuyer sur enter pour continuer")
 driver.get("http://localhost:8000/collaborators/7/update")
-time.sleep(1)
 print("Alice accède au formulaire de mis a jours d'un collaborateur")
-print("il est semblable à celui de création, à la différence prés que les valeurs préexistantes sont affichées. ")
-driver.find_element(By.ID, "email").send_keys("jean@epicevent.com")
+time.sleep(1)
 print("Elle renseigne la nouvelle valeur puis valide.")
+driver.find_element(By.ID, "email").send_keys("jean@epicevent.com")
 input("appuyer sur enter pour continuer")
 driver.find_element(By.XPATH, "//button[@type='submit']").click()
 print("et voilà la valeur a été mis a jour.")
@@ -200,18 +199,17 @@ print("Retrouvons donc Alice pour l’enregistrement du contrat.")
 time.sleep(3)
 # Nouveau contrat non signé
 driver.get("http://localhost:8000/contracts/create")
-
-time.sleep(1)
-Select(driver.find_element(By.ID, "client_id")).select_by_value("4")
 time.sleep(1)
 print("elle sélectionne le client dans le menu déroulant")
+Select(driver.find_element(By.ID, "client_id")).select_by_value("4")
+time.sleep(1)
+print("Entre un montant total et un montant due. Le même car aucun acompte n’a"
+      "été versé. Et enfin, elle sélectionne False pour la signature du "
+      "contrat.")
 driver.find_element(By.ID, "total_amount").send_keys("5000")
 driver.find_element(By.ID, "amount_due").send_keys("5000")
 time.sleep(1)
 Select(driver.find_element(By.ID, "signed")).select_by_value("False")
-print("Entre un montant total et un montant due. Le même car aucun acompte n’a"
-      "été versé. Et enfin, elle sélectionne False pour la signature du "
-      "contrat.")
 input("appuyer sur enter pour continuer")
 driver.find_element(By.XPATH, "//button[@type='submit']").click()
 time.sleep(2)
@@ -220,14 +218,14 @@ time.sleep(2)
 driver.get("http://localhost:8000/contracts")
 print("Le contrat apparaît bien dans la liste. ")
 time.sleep(5)
-# Déco → commercial
+
 logout(driver)
 
 print("Le contrat sous le bras, Jean retourne voir Luc qui signe. "
       "Donc il retourne voir sur son compte pour créer l’événement. "
       )
+input("appuyer sur enter pour continuer")
 login(driver, "nouveau_commercial")
-
 # Liste contrats
 driver.get("http://localhost:8000/contracts")
 time.sleep(1)
@@ -243,7 +241,7 @@ login(driver, "gestion")
 driver.get("http://localhost:8000/contracts/8")
 time.sleep(1)
 print("Elle lui arrange ça vite fait.")
-# Signed = True
+
 driver.get("http://localhost:8000/contracts/8/update")
 Select(driver.find_element(By.ID, "signed")).select_by_value("True")
 input("appuyer sur enter pour continuer")
@@ -292,7 +290,8 @@ print("va pouvoir lui assigner un collaborateur. Mais qui?")
 # Liste collaborateurs tri service
 driver.get("http://localhost:8000/collaborators")
 print("Elle cherche donc les membres de l’équipe de support ")
-time.sleep(3)
+print("en cliquant sur le lien de tri de la colonne service une premiere fois,")
+input("appuyer sur enter pour continuer")
 driver.find_element(By.ID, "sort_role").click()
 print("en cliquant sur le lien de tri de la colonne service une premiere fois,")
 print("elle obtient un tri ascendant qui ne l’arrange pas vraiment ")
@@ -310,7 +309,7 @@ time.sleep(1)
 print("David a un forum de 80personnes dans 4 jours, il doit être presque bouclé.")
 input("appuyer sur enter pour continuer")
 # Détails Emma
-driver.get("http://localhost:8000/collaborators")
+driver.get("http://localhost:8000/collaborators/?sort=role&order=desc")
 driver.find_element(By.PARTIAL_LINK_TEXT, "Emma Bernard").click()
 time.sleep(1)
 print("Voyons Emma, et bien Emma n’a rien en cours depuis 3 semaines.")
@@ -339,19 +338,18 @@ print("Emma quand elle se connecte et qu’elle consulte son profil.")
 # Liste contrats
 driver.get("http://localhost:8000/collaborators/6/")
 print("Voit un nouvel événement pour elle.")
-time.sleep(7)
+time.sleep(5)
 
 # Liste événements
 driver.get("http://localhost:8000/events")
-time.sleep(2)
-
+print("dans la liste des évenements, vous noterez la couleur grisée des crayons"
+      "quand l'événement n'est pas modifiable par l'utilisateur.")
+input("appuyer sur enter pour continuer")
 # Détails événement
 driver.get("http://localhost:8000/events/6/")
 time.sleep(2)
+print("elle Consulte les détails et note tout de suite une incohérence.")
 
-print("Consulte les détails et note tout de suite une incohérence."
-      "La salle du fabLab de lille, c’est pas le zenith, "
-      "donc max 150 personnes dans la salle de conférence.")
 input("appuyer sur enter pour continuer")
 # Modifier participants et note
 driver.get("http://localhost:8000/events/6/update")
@@ -360,14 +358,18 @@ driver.find_element(By.ID, "participants").send_keys("150")
 time.sleep(1)
 driver.find_element(By.ID, "notes").send_keys("On va se calmer.")
 time.sleep(2)
+print("et modifie l'événement. La salle du fabLab de lille,"
+      "c’est pas le zenith, donc max 150 personnes dans la salle de conférence.")
+input("appuyer sur enter pour continuer")
 driver.find_element(By.XPATH, "//button[@type='submit']").click()
 time.sleep(2)
-
+input("appuyer sur enter pour continuer")
 # Liste événements
 driver.get("http://localhost:8000/events")
 print("la mise à jour de l'événement apparaît dans la liste.")
 print("elle décide de faire un peu de tri dans ces événements "
       "et clique sur la corbeille du premier")
+input("appuyer sur enter pour continuer")
 driver.get("http://localhost:8000/events/1/delete")
 print("l'événement n'apparaît plus dans la liste")
 input("appuyer sur enter pour continuer")
@@ -377,9 +379,9 @@ login(driver, "commercial")
 print("voici le compte utilisateur du commercial Bruno Lefevre")
 driver.get("http://localhost:8000/clients")
 print("dans sa liste de client, il décide de supprimer Techline SARL")
+input("appuyer sur enter pour continuer")
 driver.get("http://localhost:8000/clients/2/delete")
 print("le client n'apparaît plus dans la liste")
-time.sleep(3)
 input("appuyer sur enter pour continuer")
 
 logout(driver)
@@ -390,8 +392,6 @@ print("il dispose en plus d'une case à cocher pour afficher les éléments qui 
 print("s'il coche la case")
 input("appuyer sur enter pour continuer")
 driver.find_element(By.NAME, "show_archived").click()
-time.sleep(2)
-driver.get("http://localhost:8000/clients")
 print("le client supprimé par Bruno apparaît dans la liste")
 input("appuyer sur enter pour continuer")
 driver.get("http://localhost:8000/events")

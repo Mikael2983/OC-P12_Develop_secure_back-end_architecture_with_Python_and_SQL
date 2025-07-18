@@ -1,4 +1,5 @@
 from datetime import date, datetime
+
 import pytest
 
 from epic_event.models import Client

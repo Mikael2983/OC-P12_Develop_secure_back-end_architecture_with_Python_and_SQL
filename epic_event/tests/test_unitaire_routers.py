@@ -1,6 +1,7 @@
 import io
-import pytest
 from unittest.mock import Mock
+
+import pytest
 
 from epic_event.router import MyHandler
 

@@ -1,6 +1,6 @@
 import pytest
 
-from epic_event.models import Collaborator, Client
+from epic_event.models import Client, Collaborator
 
 
 def test_order_by_fields_functional(seed_data_collaborator, db_session):

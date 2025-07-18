@@ -1,15 +1,13 @@
 """Event ORM model with validation, error handling, and relationships."""
+import logging
 from datetime import date, datetime
 
-import logging
-from sqlalchemy import Date, Column, Integer, String, ForeignKey, Text, Boolean
+from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String, Text
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import Session, relationship
 
+from epic_event.models import Collaborator, Contract, Entity
 from epic_event.models.base import Base
-from epic_event.models import Contract
-from epic_event.models import Collaborator
-from epic_event.models import Entity
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
-from functools import wraps
 import re
+from functools import wraps
 from typing import TypeAlias, Union
 
-from epic_event.models import SESSION_CONTEXT, Contract, Collaborator, Client, \
-    Event
+from epic_event.models import (SESSION_CONTEXT, Client, Collaborator, Contract,
+                               Event)
 from epic_event.render_engine import TemplateRenderer
 from epic_event.settings import entities
 

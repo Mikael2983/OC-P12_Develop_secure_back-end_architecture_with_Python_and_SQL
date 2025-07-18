@@ -1,14 +1,15 @@
-from datetime import datetime, date
 import logging
-from typing import Any, Dict, Union
 import uuid
+from datetime import date, datetime
+from typing import Any, Dict, Union
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+
 # the import of Event is necessary. it appears indirectly by model = get_model(entity_name)
-from epic_event.models import Collaborator, Client, Contract, Event
-from epic_event.models import SESSION_CONTEXT
-from epic_event.permission import login_required, has_permission, user_can
+from epic_event.models import (SESSION_CONTEXT, Client, Collaborator, Contract,
+                               Event)
+from epic_event.permission import has_permission, login_required, user_can
 from epic_event.render_engine import TemplateRenderer, make_query_string
 from epic_event.settings import entities
 

@@ -1,6 +1,6 @@
 import pytest
 
-from epic_event.models import Collaborator, Client
+from epic_event.models import Client, Collaborator
 
 
 def test_create_collaborator_and_set_password():

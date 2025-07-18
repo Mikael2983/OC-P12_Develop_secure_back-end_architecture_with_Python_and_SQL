@@ -1,14 +1,14 @@
 """Collaborator ORM model with validation, error handling, and relationships."""
-import re
-import bcrypt
 import logging
+import re
 
-from sqlalchemy import Column, Integer, String, Boolean, LargeBinary
+import bcrypt
+from sqlalchemy import Boolean, Column, Integer, LargeBinary, String
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import Session, relationship
 
-from epic_event.models.base import Base
 from epic_event.models import Entity
+from epic_event.models.base import Base
 
 SERVICES = ["gestion", "commercial", "support"]
 logger = logging.getLogger(__name__)

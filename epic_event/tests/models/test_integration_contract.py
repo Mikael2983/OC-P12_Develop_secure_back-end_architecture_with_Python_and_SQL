@@ -1,4 +1,5 @@
 import pytest
+
 from epic_event.models import Contract
 
 

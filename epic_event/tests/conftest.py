@@ -1,14 +1,14 @@
-from http.server import HTTPServer
 import os
-from pathlib import Path
-import pytest
 import threading
 import time
+from http.server import HTTPServer
+from pathlib import Path
 
+import pytest
 from selenium import webdriver
 from sqlalchemy.exc import SQLAlchemyError
 
-from epic_event.models import Database, Client, Collaborator, Contract, Event
+from epic_event.models import Client, Collaborator, Contract, Database, Event
 from epic_event.models.base import Base
 from epic_event.models.utils import load_test_data_in_database
 from epic_event.router import MyHandler

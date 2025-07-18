@@ -1,5 +1,6 @@
 import re
 from datetime import date, timedelta
+
 import pytest
 
 from epic_event.models import Event

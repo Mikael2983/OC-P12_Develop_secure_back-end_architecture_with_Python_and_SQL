@@ -7,10 +7,10 @@ Supported features:
 - {% include 'file.html' var %} for partial inclusion.
 - {% extends 'base.html' %} and {% block name %}...{% endblock %} for inheritance.
 """
-from collections.abc import Iterable
 import logging
 import os
 import re
+from collections.abc import Iterable
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from sentry_sdk import capture_exception

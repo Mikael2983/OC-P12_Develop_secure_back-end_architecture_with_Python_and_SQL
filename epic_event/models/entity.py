@@ -2,8 +2,8 @@ import logging
 from typing import Any, Dict, List
 
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import Session, joinedload
 
 logger = logging.getLogger(__name__)
 

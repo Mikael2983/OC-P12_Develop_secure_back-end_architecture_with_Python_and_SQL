@@ -1,6 +1,6 @@
 import pytest
-from epic_event.models import Client
 
+from epic_event.models import Client
 
 
 def test_resolve_direct_field(seed_data_client):

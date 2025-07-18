@@ -1,20 +1,19 @@
-from http.server import BaseHTTPRequestHandler
+import logging
 import mimetypes
 import os
 import re
 import urllib.parse
-from urllib.parse import urlparse, parse_qs
-
-import logging
+from http.server import BaseHTTPRequestHandler
+from urllib.parse import parse_qs, urlparse
 
 from epic_event.models import SESSION_CONTEXT
 from epic_event.settings import entities
-from epic_event.views import (routes, entity_detail_view, login,
-                   entity_create_view, entity_create_post_view,
-                   entity_list_view, entity_delete_view,
-                   entity_delete_post_view, client_contact_view, logout,
-                   user_password_post_view, collaborator_password_view,
-                   entity_update_view, entity_update_post_view)
+from epic_event.views import (client_contact_view, collaborator_password_view,
+                              entity_create_post_view, entity_create_view,
+                              entity_delete_post_view, entity_delete_view,
+                              entity_detail_view, entity_list_view,
+                              entity_update_post_view, entity_update_view,
+                              login, logout, routes, user_password_post_view)
 
 logger = logging.getLogger(__name__)
 
