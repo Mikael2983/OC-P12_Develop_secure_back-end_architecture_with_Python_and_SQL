@@ -125,8 +125,8 @@ input("appuyer sur enter pour continuer")
 # Événements
 driver.get("http://localhost:8000/events")
 time.sleep(1)
-print("En enfin, la liste des événements avec un message avec un lien qui "
-      "apparaît quand un collaborateur doit être assigner.")
+print("En enfin, la liste des événements.dans la colonne Collaborateur,"
+      "un lien apparaît quand un collaborateur peut ou doit être assigner.")
 input("appuyer sur enter pour continuer")
 driver.get("http://localhost:8000/events/1")
 time.sleep(1)
@@ -136,7 +136,8 @@ input("appuyer sur enter pour continuer")
 # Déco gestionnaire → nouveau commercial
 logout(driver)
 print("Voici pour le tour rapide des affichages que propose le CRM."
-      "nous avons créer un nouveau collaborateur. Laissons le accéder à son compte.")
+      "Alice a créé un nouveau collaborateur. Laissons-le accéder à son compte.")
+
 input("appuyer sur enter pour continuer")
 login(driver, "nouveau_commercial")
 time.sleep(2)
@@ -265,7 +266,11 @@ driver.find_element(By.ID, "title").send_keys("pot de Lancement Produit")
 time.sleep(1)
 driver.find_element(By.ID, "start_date").send_keys("20-07-2025")
 time.sleep(1)
+driver.find_element(By.ID, "start_time").send_keys("16:00")
+time.sleep(1)
 driver.find_element(By.ID, "end_date").send_keys("20-07-2025")
+time.sleep(1)
+driver.find_element(By.ID, "end_time").send_keys("22:00")
 time.sleep(1)
 driver.find_element(By.ID, "location").send_keys("FabLab de Lille")
 time.sleep(1)
