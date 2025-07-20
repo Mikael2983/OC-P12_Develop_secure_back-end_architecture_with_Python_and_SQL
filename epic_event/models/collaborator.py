@@ -45,6 +45,9 @@ class Collaborator(Base, Entity):
 
     clients = relationship("Client", back_populates="commercial")
 
+    def __str__(self):
+        return f"le collaborateur {self.full_name} du service {self.role}"
+
     def _validate_full_name(self, db: Session) -> None:
         """
         Validates that the full name is not empty, is alphabetical and unique.

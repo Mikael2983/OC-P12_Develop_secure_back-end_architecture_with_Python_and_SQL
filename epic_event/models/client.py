@@ -46,6 +46,9 @@ class Client(Base, Entity):
     contracts = relationship("Contract", back_populates="client")
     commercial = relationship("Collaborator", back_populates="clients")
 
+    def __str__(self):
+        return f"le client {self.company_name} répresenté par {self.contact}"
+
     @property
     def formatted_created_date(self):
         """ Formatted date into european format"""

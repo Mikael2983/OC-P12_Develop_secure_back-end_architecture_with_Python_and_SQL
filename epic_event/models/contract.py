@@ -39,6 +39,9 @@ class Contract(Base, Entity):
     client = relationship("Client", back_populates="contracts")
     event = relationship("Event", back_populates="contract", uselist=False)
 
+    def __str__(self):
+        return f"le contract {self.id} du client {self.client.company_name}"
+
     @property
     def formatted_created_date(self):
         """ Formatted date into european format"""

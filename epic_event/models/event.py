@@ -48,6 +48,9 @@ class Event(Base, Entity):
     contract = relationship("Contract", back_populates="event")
     support = relationship("Collaborator", back_populates="events")
 
+    def __str__(self):
+        return f"l'événement {self.title}"
+
     @property
     def formatted_start_date(self):
         """ Formatted datetime into european format"""
