@@ -7,7 +7,6 @@ import sentry_sdk
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-# the import of Event is necessary. it appears indirectly by model = get_model(entity_name)
 from epic_event.models import (SESSION_CONTEXT, Client, Collaborator, Contract,
                                Event)
 from epic_event.permission import has_permission, login_required, user_can
