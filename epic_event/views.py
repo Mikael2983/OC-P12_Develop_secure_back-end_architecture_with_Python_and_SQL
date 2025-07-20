@@ -73,7 +73,7 @@ def login(db: Session, data: Dict[str, list[str]]) -> dict:
             sentry_sdk.set_user({
                 "id": user.id,
                 "username": user.full_name,
-                "email": user.mail
+                "email": user.email
             })
             return {"success": True, "session_id": session_id}
 
@@ -471,7 +471,7 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[
             {"user": user, "error": str(e)}
         )
 
-    logger.info("Entité créée : %s par %s",
+    logger.info("Entité %s créée par %s",
                 instance, user.full_name)
     return True
 
