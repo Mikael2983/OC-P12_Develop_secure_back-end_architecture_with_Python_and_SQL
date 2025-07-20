@@ -470,7 +470,7 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[
             {"user": user, "error": str(e)}
         )
 
-    logger.info("Entité %s créée par %s",
+    logger.info(" %s créé par %s",
                 instance, user.full_name)
     return True
 
@@ -614,8 +614,8 @@ def entity_update_post_view(pk: int,
 
         instance.update(session, **data)
         instance.save(session)
-        logger.info("L'entité %s avec l'id=%s est mis à jour par %s",
-                    entity_name, pk, user.full_name)
+        logger.info("%s est mis à jour par %s",
+                    instance, user.full_name)
         return True
 
     except (ValueError, TypeError) as e:
@@ -632,58 +632,59 @@ def entity_update_post_view(pk: int,
             }
         )
 
-
-@login_required
-@has_permission("update")
-def entity_delete_view(pk, **kwargs) -> bool:
-    """
-    Soft-delete an entity by setting its archived flag.
-
-    Args:
-        pk (int): Primary key of the entity to delete.
-
-    Kwargs:
-        session: SQLAlchemy session.
-        entity_name (str): Name of the entity.
-        session_id: Current session context ID.
-
-    Returns:
-        bool: True if deletion is successful, False otherwise.
-    """
-
-    session_id = kwargs.get("session_id")
-    entity_name = kwargs.get("entity_name")
-    session = kwargs.get("session")
-
-    model = get_model(entity_name)
-    if not model:
-        logger.exception("Entité inconnue: %s.", entity_name)
-        return False
-
-    items = model.filter_by_fields(session,
-                                   archived=SESSION_CONTEXT[session_id].get(
-                                       "Display_archive",
-                                       False),
-                                   id=pk
-                                   )
-
-    if not items:
-        logger.exception(
-            "L'entité %s avec l'id=%s est introuvable",
-            entity_name, pk)
-        return False
-
-    instance = items[0]
-    instance.archived = True
-    instance.save(session)
-    logger.info("le %s avec l'id=%s a été archivé",
-                entity_name, pk)
-    return True
+#
+# @login_required
+# @has_permission("update")
+# def entity_delete_view(pk, **kwargs) -> bool:
+#     """
+#     Soft-delete an entity by setting its archived flag.
+#
+#     Args:
+#         pk (int): Primary key of the entity to delete.
+#
+#     Kwargs:
+#         session: SQLAlchemy session.
+#         entity_name (str): Name of the entity.
+#         session_id: Current session context ID.
+#
+#     Returns:
+#         bool: True if deletion is successful, False otherwise.
+#     """
+#
+#     session_id = kwargs.get("session_id")
+#     user = kwargs.get("user")
+#     entity_name = kwargs.get("entity_name")
+#     session = kwargs.get("session")
+#
+#     model = get_model(entity_name)
+#     if not model:
+#         logger.exception("Entité inconnue: %s.", entity_name)
+#         return False
+#
+#     items = model.filter_by_fields(session,
+#                                    archived=SESSION_CONTEXT[session_id].get(
+#                                        "Display_archive",
+#                                        False),
+#                                    id=pk
+#                                    )
+#
+#     if not items:
+#         logger.exception(
+#             "L'entité %s avec l'id=%s est introuvable",
+#             entity_name, pk)
+#         return False
+#
+#     instance = items[0]
+#     instance.archived = True
+#     instance.save(session)
+#     logger.info("%s a été archivé par %s",
+#                 instance, user.full_name)
+#     return True
 
 
 @login_required
 @has_permission("delete")
-def entity_delete_post_view(pk: int, **kwargs) -> \
+def entity_delete_view(pk: int, **kwargs) -> \
         Union[bool, str]:
     """
     Process the soft deletion of an entity and return result.
@@ -807,7 +808,7 @@ def client_contact_view(client_id: int, **kwargs) -> Union[bool, str]:
         client.validate_all(session)
         client.save(session)
         logger.info("un contact avec le client id=%s a été enregistré par %s",
-                    client_id, user_name)
+                    client_id, user.full_name)
         return True
     except (ValueError, TypeError) as e:
         logger.warning("Erreur de validation : %s.",e)

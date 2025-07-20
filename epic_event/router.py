@@ -30,10 +30,10 @@ from epic_event.models import SESSION_CONTEXT
 from epic_event.settings import entities
 from epic_event.views import (client_contact_view, collaborator_password_view,
                               entity_create_post_view, entity_create_view,
-                              entity_delete_post_view, entity_delete_view,
-                              entity_detail_view, entity_list_view,
-                              entity_update_post_view, entity_update_view,
-                              login, logout, routes, user_password_post_view)
+                              entity_delete_view, entity_detail_view,
+                              entity_list_view, entity_update_post_view,
+                              entity_update_view, login, logout, routes,
+                              user_password_post_view)
 
 logger = logging.getLogger(__name__)
 
@@ -405,33 +405,6 @@ class MyHandler(BaseHTTPRequestHandler):
                                          session=self.session,
                                          entity_name=entity,
                                          headers=self.headers)
-        if result is True:
-            self._redirect(path=f"/{entity}")
-        else:
-            self._send_html(result)
-
-    def handle_entity_delete_post(self, entity, pk):
-        """
-        Handles POST request to delete a specific entity item.
-
-        Args:
-            entity (str): Name of the entity.
-            pk (int): Primary key (ID) of the entity item.
-
-        Calls the delete view and redirects to the entity list on success.
-        If deletion fails, sends back the HTML response with errors.
-
-        """
-        if entity not in entities:
-            self.send_error(
-                404,
-                f"Entité inconnue : {entity}")
-
-        result = entity_delete_post_view(pk,
-                                         session=self.session,
-                                         entity_name=entity,
-                                         headers=self.headers)
-
         if result is True:
             self._redirect(path=f"/{entity}")
         else:
