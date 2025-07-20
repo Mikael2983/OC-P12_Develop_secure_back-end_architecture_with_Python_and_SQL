@@ -12,7 +12,7 @@
 
     <div id="option" class="section">
     {% if user_can(user, "create", "clients") %}
-        <button type="button" onclick="window.location.href='/clients/create/'">Créer un client</button>
+        <button  id="create_client" type="button" onclick="window.location.href='/clients/create/'">Créer un client</button>
     {% endif %}
     </div>
 </div>

@@ -73,7 +73,7 @@
                     {{ event.support.full_name }}
                 {% else %}
                     {% if user.role == "gestion" or user.role == "admin" %}
-                        <a href="/events/{{ event.id }}/update/">Assigner un collaborateur</a>
+                        <a id= "event_{{event.id}}" href="/events/{{ event.id }}/update/">Assigner un collaborateur</a>
                     {% else %}
                         NC
                     {% endif %}
