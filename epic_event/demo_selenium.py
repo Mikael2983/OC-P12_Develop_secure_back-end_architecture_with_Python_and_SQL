@@ -265,19 +265,12 @@ time.sleep(2)
 # Créer événement
 driver.get("http://localhost:8000/events/create?contract_id=8")
 driver.find_element(By.ID, "title").send_keys("pot de Lancement Produit")
-
 driver.find_element(By.ID, "start_date").send_keys("20-07-2025")
-
 driver.find_element(By.ID, "start_time").send_keys("16:00")
-
 driver.find_element(By.ID, "end_date").send_keys("20-07-2025")
-
 driver.find_element(By.ID, "end_time").send_keys("22:00")
-
 driver.find_element(By.ID, "location").send_keys("FabLab de Lille")
-
 driver.find_element(By.ID, "participants").send_keys("5000")
-
 driver.find_element(By.ID, "notes").send_keys(
     "Événement stratégique. ça va être énorme")
 time.sleep(1)
@@ -374,16 +367,7 @@ print("l'événement n'apparaît plus dans la liste")
 input("appuyer sur enter pour continuer")
 
 logout(driver)
-login(driver, "commercial")
-print("voici le compte utilisateur du commercial Bruno Lefevre")
-driver.get("http://localhost:8000/clients")
-print("dans sa liste de client, il décide de supprimer Techline SARL")
-input("appuyer sur enter pour continuer")
-driver.get("http://localhost:8000/clients/2/delete")
-print("le client n'apparaît plus dans la liste")
-input("appuyer sur enter pour continuer")
 
-logout(driver)
 login(driver, "admin")
 print("voici le compte administrateur.")
 print("il dispose en plus d'une case à cocher pour afficher les éléments qui "
@@ -392,9 +376,6 @@ print("s'il coche la case")
 input("appuyer sur enter pour continuer")
 driver.find_element(By.NAME, "show_archived").click()
 time.sleep(2)
-driver.get("http://localhost:8000/clients")
-print("le client supprimé par Bruno apparaît dans la liste")
-input("appuyer sur enter pour continuer")
 driver.get("http://localhost:8000/events")
 print("l'événement supprimé par Emma apparaît dans la liste")
 input("appuyer sur enter pour continuer")
