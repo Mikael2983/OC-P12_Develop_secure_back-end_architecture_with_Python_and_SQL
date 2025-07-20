@@ -47,7 +47,7 @@ class Client(Base, Entity):
     commercial = relationship("Collaborator", back_populates="clients")
 
     def __str__(self):
-        return f"le client {self.company_name} répresenté par {self.contact}"
+        return f"le client {self.company_name} répresenté par {self.full_name}"
 
     @property
     def formatted_created_date(self):
