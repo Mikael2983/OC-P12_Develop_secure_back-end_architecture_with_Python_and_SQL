@@ -1,8 +1,9 @@
 import logging
 import uuid
-from datetime import date, datetime, time
+from datetime import date, datetime
 from typing import Any, Dict, Union
 
+import sentry_sdk
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -69,7 +70,11 @@ def login(db: Session, data: Dict[str, list[str]]) -> dict:
                 "user": user,
                 "Display_archive": False
             }
-
+            sentry_sdk.set_user({
+                "id": user.id,
+                "username": user.full_name,
+                "email": user.mail
+            })
             return {"success": True, "session_id": session_id}
 
     html = renderer.render_template(
@@ -89,7 +94,7 @@ def logout(**kwargs) -> str:
     session_id = kwargs.get("session_id", {})
     if session_id:
         SESSION_CONTEXT.pop(session_id, None)
-
+        sentry_sdk.set_user(None)
     return renderer.render_template("index.html",
                                     {"error": ""})
 
@@ -466,7 +471,8 @@ def entity_create_post_view(data: Dict[str, Any], **kwargs) -> Union[
             {"user": user, "error": str(e)}
         )
 
-    logger.info("Entité créée : %s.", instance)
+    logger.info("Entité créée : %s par %s",
+                instance, user.full_name)
     return True
 
 
@@ -609,8 +615,8 @@ def entity_update_post_view(pk: int,
 
         instance.update(session, **data)
         instance.save(session)
-        logger.info("L'entité %s avec l'id=%s est mis à jour",
-                    entity_name, pk)
+        logger.info("L'entité %s avec l'id=%s est mis à jour par %s",
+                    entity_name, pk, user.full_name)
         return True
 
     except (ValueError, TypeError) as e:
@@ -671,6 +677,8 @@ def entity_delete_view(pk, **kwargs) -> bool:
     instance = items[0]
     instance.archived = True
     instance.save(session)
+    logger.info("le %s avec l'id=%s a été archivé",
+                entity_name, pk)
     return True
 
 
@@ -732,8 +740,8 @@ def entity_delete_post_view(pk: int, **kwargs) -> \
     try:
         model.soft_delete(session, pk)
         logger.info(
-            "L'entité %s avec l'id=%s est supprimé",
-            entity_name, pk)
+            "L'entité %s avec l'id=%s est supprimé par %s",
+            entity_name, pk, user.full_name)
         return True
     except (ValueError, TypeError) as e:
         session.rollback()
@@ -799,6 +807,8 @@ def client_contact_view(client_id: int, **kwargs) -> Union[bool, str]:
         client.last_contact_date = datetime.today().date()
         client.validate_all(session)
         client.save(session)
+        logger.info("un contact avec le client id=%s a été enregistré par %s",
+                    client_id, user_name)
         return True
     except (ValueError, TypeError) as e:
         logger.warning("Erreur de validation : %s.",e)

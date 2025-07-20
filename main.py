@@ -16,7 +16,14 @@ from epic_event.settings import DATABASES, PORT, SENTRY_DSN, setup_logging
 
 sentry_logging = LoggingIntegration(level=logging.INFO,
                                     event_level=logging.INFO)
-sentry_sdk.init(dsn=SENTRY_DSN, integrations=[sentry_logging])
+sentry_sdk.init(dsn=SENTRY_DSN,
+                integrations=[
+                    LoggingIntegration(
+                        level=logging.INFO,
+                        event_level=logging.INFO
+                    )
+                ],
+                send_default_pii=True)
 
 setup_logging()
 logger = logging.getLogger(__name__)
